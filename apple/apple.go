@@ -24,16 +24,16 @@ func (a *Apple) Update() {
 	defer a.mu.Unlock()
 
 	if a.eaten == true {
-		rand.Seed(time.Now().Unix())
+		a.eaten = false
+
+		rand.Seed(time.Now().UnixNano())
 		rX := rand.Intn(460-1) + 1
 
-		rand.Seed(time.Now().Unix())
+		rand.Seed(time.Now().UnixNano())
 		rY := rand.Intn(460-1) + 1
 
 		a.x = int32(rX)
 		a.y = int32(rY)
-
-		a.eaten = false
 	}
 
 }
@@ -52,6 +52,13 @@ func (a Apple) Paint(r *sdl.Renderer) error {
 }
 
 func (a Apple) ExistsIn(x, y, w, h int32) bool {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+
+	if a.eaten == true {
+		return false
+	}
+
 	if a.x < x+w && a.x+a.size > x &&
 		a.y < y+h && a.y+a.size > y {
 		return true

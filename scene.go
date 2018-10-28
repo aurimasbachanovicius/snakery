@@ -55,8 +55,9 @@ func (s scene) run(events <-chan sdl.Event) <-chan error {
 }
 
 func (s scene) update(frame int) {
-	s.snake.Update(frame)
 	s.apple.Update()
+
+	s.snake.Update(frame)
 	s.snake.Touch(s.apple)
 }
 

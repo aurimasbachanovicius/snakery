@@ -28,7 +28,7 @@ type Snake struct {
 	mu sync.RWMutex
 
 	parts []*part
-	size  int32
+	size  int
 	speed float32
 	step  int32
 }
@@ -38,6 +38,7 @@ func New() *Snake {
 		parts: []*part{{x: 50, y: 50, w: 120, h: Fat, vector: Right}},
 		size:  120,
 		step:  2,
+		speed: 0,
 	}
 }
 
@@ -103,11 +104,11 @@ func (s *Snake) Update(frame int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if s.speed < 2 {
-		s.speed = 2
+	if s.speed > 18 {
+		s.speed = 18
 	}
 
-	if frame%20-int(s.speed) != 0 {
+	if frame%(20-int(s.speed)) != 0 {
 		return
 	}
 
@@ -179,15 +180,15 @@ func (s *Snake) Paint(r *sdl.Renderer) error {
 	return nil
 }
 
-func (s *Snake) getWholeSize() int32 {
-	var sum int32 = 0
+func (s *Snake) getWholeSize() int {
+	sum := 0
 
 	for _, part := range s.parts {
 		switch part.vector {
 		case Up, Down:
-			sum += math.Abs(part.h)
+			sum += int(math.Abs(part.h))
 		case Left, Right:
-			sum += math.Abs(part.w)
+			sum += int(math.Abs(part.w))
 		}
 	}
 
@@ -195,14 +196,19 @@ func (s *Snake) getWholeSize() int32 {
 }
 
 func (s *Snake) Touch(a *apple.Apple) {
+	s.mu.RLock()
 	latest := s.parts[len(s.parts)-1]
+	exists := a.ExistsIn(latest.x, latest.y, latest.w, latest.h)
+	s.mu.RUnlock()
 
-	if a.ExistsIn(latest.x, latest.y, latest.w, latest.h) {
+	if exists {
+		a.EatApple()
+
 		s.mu.Lock()
+
 		s.size += 50
 		s.speed += 0.2
-		s.mu.Unlock()
 
-		a.EatApple()
+		s.mu.Unlock()
 	}
 }
