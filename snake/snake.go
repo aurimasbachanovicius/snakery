@@ -31,18 +31,28 @@ type Snake struct {
 	size  int
 	speed float32
 	step  int32
+
+	lockMove bool
+
+	dead bool
 }
 
 func New() *Snake {
 	return &Snake{
-		parts: []*part{{x: 50, y: 50, w: 120, h: Fat, vector: Right}},
-		size:  120,
-		step:  2,
-		speed: 0,
+		parts:    []*part{{x: 50, y: 50, w: 120, h: Fat, vector: Right}},
+		size:     120,
+		step:     10,
+		speed:    2,
+		lockMove: false,
+		dead:     false,
 	}
 }
 
-func (Snake) canGo(v Vector, latestV Vector) bool {
+func (s Snake) canGo(v Vector, latestV Vector) bool {
+	if s.lockMove {
+		return false
+	}
+
 	if v == latestV {
 		return false
 	}
@@ -98,9 +108,10 @@ func (s *Snake) ChangeVector(v Vector) {
 	}
 
 	s.parts = append(s.parts, &p)
+	s.lockMove = true
 }
 
-func (s *Snake) Update(frame int) {
+func (s *Snake) Update() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -108,9 +119,7 @@ func (s *Snake) Update(frame int) {
 		s.speed = 18
 	}
 
-	if frame%(20-int(s.speed)) != 0 {
-		return
-	}
+	s.lockMove = false
 
 	first := s.parts[0]
 	if s.getWholeSize() > s.size && len(s.parts) > 1 {
@@ -195,10 +204,10 @@ func (s *Snake) getWholeSize() int {
 	return sum
 }
 
-func (s *Snake) Touch(a *apple.Apple) {
+func (s *Snake) Eat(a *apple.Apple) {
 	s.mu.RLock()
 	latest := s.parts[len(s.parts)-1]
-	exists := a.ExistsIn(latest.x, latest.y, latest.w, latest.h)
+	exists := a.ExistsIn(latest.getCord())
 	s.mu.RUnlock()
 
 	if exists {
@@ -207,8 +216,65 @@ func (s *Snake) Touch(a *apple.Apple) {
 		s.mu.Lock()
 
 		s.size += 50
-		s.speed += 0.2
+		s.speed += 0.5
 
 		s.mu.Unlock()
 	}
+}
+
+func (s *Snake) TouchDeadZone() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	head := s.parts[len(s.parts)-1]
+	sl, sr := head.getCord()
+
+	if sl.X > 500 || sl.Y > 500 || sr.X > 500 || sr.Y > 500 {
+		s.dead = true
+		return
+	}
+
+	if sl.X < 0 || sl.Y < 0 || sr.X < 0 || sr.Y < 0 {
+		s.dead = true
+		return
+	}
+
+	if len(s.parts) <= 3 {
+		return
+	}
+
+	parts := s.parts[:len(s.parts)-3]
+
+	for _, part := range parts {
+		pl, pr := part.getCord()
+
+		if math.IsOverlapping(pl, pr, sl, sr) {
+			s.dead = true
+			return
+		}
+	}
+}
+
+func (p part) getCord() (math.Cord, math.Cord) {
+	return math.Cord{
+		X: p.x,
+		Y: p.y,
+	}, math.Cord{
+		X: p.x + p.w,
+		Y: p.y + p.h,
+	}
+}
+
+func (s Snake) IsDead() bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	return s.dead
+}
+
+func (s Snake) IsTimeUpdate(f int) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	return f%(100-int(s.speed)) == 0
 }

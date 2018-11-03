@@ -39,7 +39,16 @@ func (s scene) run(events <-chan sdl.Event) <-chan error {
 				}
 			case <-tick:
 				frame++
-				s.update(frame)
+				if !s.snake.IsTimeUpdate(frame) {
+					continue
+				}
+
+				if s.snake.IsDead() {
+					fmt.Println("You're dead")
+					return
+				}
+
+				s.update()
 
 				if err := s.paint(); err != nil {
 					errc <- err
@@ -54,11 +63,11 @@ func (s scene) run(events <-chan sdl.Event) <-chan error {
 	return errc
 }
 
-func (s scene) update(frame int) {
+func (s scene) update() {
 	s.apple.Update()
-
-	s.snake.Update(frame)
-	s.snake.Touch(s.apple)
+	s.snake.Update()
+	s.snake.Eat(s.apple)
+	s.snake.TouchDeadZone()
 }
 
 func (s *scene) handleEvent(event sdl.Event, t time.Time) bool {

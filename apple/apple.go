@@ -1,6 +1,7 @@
 package apple
 
 import (
+	"github.com/3auris/snakery/math"
 	"github.com/veandco/go-sdl2/sdl"
 	"math/rand"
 	"sync"
@@ -51,7 +52,7 @@ func (a Apple) Paint(r *sdl.Renderer) error {
 	return nil
 }
 
-func (a Apple) ExistsIn(x, y, w, h int32) bool {
+func (a Apple) ExistsIn(pl, pr math.Cord) bool {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
@@ -59,12 +60,16 @@ func (a Apple) ExistsIn(x, y, w, h int32) bool {
 		return false
 	}
 
-	if a.x < x+w && a.x+a.size > x &&
-		a.y < y+h && a.y+a.size > y {
-		return true
+	l := math.Cord{
+		X: a.x,
+		Y: a.y,
+	}
+	r := math.Cord{
+		X: a.x + a.size,
+		Y: a.y + a.size,
 	}
 
-	return false
+	return math.IsOverlapping(l, r, pl, pr)
 }
 
 func (a *Apple) EatApple() {
