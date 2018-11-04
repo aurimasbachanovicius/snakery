@@ -278,5 +278,9 @@ func (s Snake) IsTimeUpdate(f int) bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
+	if f == 1 {
+		return true
+	}
+
 	return f%(100-int(s.speed)) == 0
 }
