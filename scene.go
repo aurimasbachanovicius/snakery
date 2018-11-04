@@ -39,7 +39,7 @@ func newScene(r *sdl.Renderer) (*scene, error) {
 
 func (s scene) run(events <-chan sdl.Event) <-chan error {
 	errc := make(chan error)
-	
+
 	go func() {
 		frame := 0
 		tick := time.Tick(time.Millisecond)
