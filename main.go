@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/ttf"
 	"os"
 	"runtime"
 )
@@ -20,6 +21,11 @@ func run() error {
 	}
 	defer sdl.Quit()
 
+	if err := ttf.Init(); err != nil {
+		return fmt.Errorf("could not init ttf: %v", err)
+	}
+	defer ttf.Quit()
+
 	w, r, err := sdl.CreateWindowAndRenderer(500, 500, sdl.WINDOW_SHOWN)
 	if err != nil {
 		return fmt.Errorf("could not create window: %v", err)
@@ -31,7 +37,12 @@ func run() error {
 	}
 
 	events := make(chan sdl.Event)
-	scene := newScene(r)
+	scene, err := newScene(r)
+	if err != nil {
+		return fmt.Errorf("could not create scene, %v", err)
+	}
+	defer scene.destroy()
+
 	errc := scene.run(events)
 
 	runtime.LockOSThread()

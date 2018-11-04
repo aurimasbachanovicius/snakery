@@ -3,6 +3,7 @@ package snake
 import (
 	"github.com/3auris/snakery/apple"
 	"github.com/3auris/snakery/math"
+	"github.com/3auris/snakery/score"
 	"github.com/veandco/go-sdl2/sdl"
 	"sync"
 )
@@ -115,8 +116,8 @@ func (s *Snake) Update() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if s.speed > 18 {
-		s.speed = 18
+	if s.speed > 50 {
+		s.speed = 50
 	}
 
 	s.lockMove = false
@@ -204,7 +205,7 @@ func (s *Snake) getWholeSize() int {
 	return sum
 }
 
-func (s *Snake) Eat(a *apple.Apple) {
+func (s *Snake) Eat(a *apple.Apple, score *score.Score) {
 	s.mu.RLock()
 	latest := s.parts[len(s.parts)-1]
 	exists := a.ExistsIn(latest.getCord())
@@ -212,11 +213,12 @@ func (s *Snake) Eat(a *apple.Apple) {
 
 	if exists {
 		a.EatApple()
+		score.Increase()
 
 		s.mu.Lock()
 
 		s.size += 50
-		s.speed += 0.5
+		s.speed += 1
 
 		s.mu.Unlock()
 	}
