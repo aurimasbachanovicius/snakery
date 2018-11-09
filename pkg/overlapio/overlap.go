@@ -1,4 +1,4 @@
-package math
+package overlapio
 
 func IsOverlapping(l1 Cord, r1 Cord, l2 Cord, r2 Cord) bool {
 	if r2.Y >= r1.Y && r2.Y >= l1.Y && l2.Y >= r1.Y && l2.Y >= l1.Y {

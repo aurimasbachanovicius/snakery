@@ -1,10 +1,10 @@
-package main
+package scene
 
 import (
 	"fmt"
-	"github.com/3auris/snakery/apple"
-	"github.com/3auris/snakery/score"
-	"github.com/3auris/snakery/snake"
+	"github.com/3auris/snakery/objects/apple"
+	"github.com/3auris/snakery/objects/score"
+	"github.com/3auris/snakery/objects/snake"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 	"os"
@@ -21,8 +21,8 @@ type scene struct {
 	score *score.Score
 }
 
-func newScene(r *sdl.Renderer) (*scene, error) {
-	font, err := ttf.OpenFont("assets/ubuntu.ttf", 100)
+func New(r *sdl.Renderer) (*scene, error) {
+	font, err := ttf.OpenFont("res/ubuntu.ttf", 100)
 	if err != nil {
 		return nil, fmt.Errorf("could not load font: %v", err)
 	}
@@ -37,24 +37,24 @@ func newScene(r *sdl.Renderer) (*scene, error) {
 	}, nil
 }
 
-func (s scene) run(events <-chan sdl.Event) <-chan error {
+func (s scene) Run(events <-chan sdl.Event) <-chan error {
 	errc := make(chan error)
 
 	go func() {
 		frame := 0
-		tick := time.Tick(time.Millisecond)
-		start := time.Now()
+		ticker := time.Tick(7 * time.Millisecond)
 
 		for {
 			select {
 			case e := <-events:
-				if done := s.handleEvent(e, start); done {
+				if done := s.handleEvent(e); done {
 					os.Exit(0)
 					return
 				}
-			case <-tick:
+			case <-ticker:
 				frame++
-				if !s.snake.IsTimeUpdate(frame) {
+
+				if ! s.snake.IsTimeUpdate(frame) {
 					continue
 				}
 
@@ -64,14 +64,12 @@ func (s scene) run(events <-chan sdl.Event) <-chan error {
 				}
 
 				s.update()
-
 				if err := s.paint(); err != nil {
 					errc <- err
 				}
 			}
 		}
 
-		fmt.Printf("%s\n", time.Since(start))
 		os.Exit(0)
 	}()
 
@@ -85,7 +83,7 @@ func (s scene) update() {
 	s.snake.TouchDeadZone()
 }
 
-func (s *scene) handleEvent(event sdl.Event, t time.Time) bool {
+func (s *scene) handleEvent(event sdl.Event) bool {
 	switch ev := event.(type) {
 	case *sdl.QuitEvent:
 		return true
@@ -132,7 +130,7 @@ func (s scene) paint() error {
 	return nil
 }
 
-func (s scene) destroy() {
+func (s scene) Destroy() {
 	s.score.Destroy()
 }
 

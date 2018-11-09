@@ -1,7 +1,7 @@
 package apple
 
 import (
-	"github.com/3auris/snakery/math"
+	"github.com/3auris/snakery/pkg/overlapio"
 	"github.com/veandco/go-sdl2/sdl"
 	"math/rand"
 	"sync"
@@ -52,7 +52,7 @@ func (a Apple) Paint(r *sdl.Renderer) error {
 	return nil
 }
 
-func (a Apple) ExistsIn(pl, pr math.Cord) bool {
+func (a Apple) ExistsIn(pl, pr overlapio.Cord) bool {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
@@ -60,16 +60,16 @@ func (a Apple) ExistsIn(pl, pr math.Cord) bool {
 		return false
 	}
 
-	l := math.Cord{
+	l := overlapio.Cord{
 		X: a.x,
 		Y: a.y,
 	}
-	r := math.Cord{
+	r := overlapio.Cord{
 		X: a.x + a.size,
 		Y: a.y + a.size,
 	}
 
-	return math.IsOverlapping(l, r, pl, pr)
+	return overlapio.IsOverlapping(l, r, pl, pr)
 }
 
 func (a *Apple) EatApple() {

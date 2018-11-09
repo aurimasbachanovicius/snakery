@@ -1,10 +1,11 @@
 package snake
 
 import (
-	"github.com/3auris/snakery/apple"
-	"github.com/3auris/snakery/math"
-	"github.com/3auris/snakery/score"
+	"github.com/3auris/snakery/objects/apple"
+	"github.com/3auris/snakery/objects/score"
+	"github.com/3auris/snakery/pkg/overlapio"
 	"github.com/veandco/go-sdl2/sdl"
+	"math"
 	"sync"
 )
 
@@ -43,7 +44,7 @@ func New() *Snake {
 		parts:    []*part{{x: 50, y: 50, w: 120, h: Fat, vector: Right}},
 		size:     120,
 		step:     10,
-		speed:    2,
+		speed:    0,
 		lockMove: false,
 		dead:     false,
 	}
@@ -73,7 +74,7 @@ func (s *Snake) ChangeVector(v Vector) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	latest := s.parts[len(s.parts)-1]
+	latest := s.latestPart()
 
 	if !s.canGo(v, latest.vector) {
 		return
@@ -116,10 +117,6 @@ func (s *Snake) Update() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if s.speed > 50 {
-		s.speed = 50
-	}
-
 	s.lockMove = false
 
 	first := s.parts[0]
@@ -146,7 +143,7 @@ func (s *Snake) Update() {
 		}
 	}
 
-	latest := s.parts[len(s.parts)-1]
+	latest := s.latestPart()
 	switch latest.vector {
 	case Up:
 		if s.getWholeSize() > s.size {
@@ -196,9 +193,9 @@ func (s *Snake) getWholeSize() int {
 	for _, part := range s.parts {
 		switch part.vector {
 		case Up, Down:
-			sum += int(math.Abs(part.h))
+			sum += int(math.Abs(float64(part.h)))
 		case Left, Right:
-			sum += int(math.Abs(part.w))
+			sum += int(math.Abs(float64(part.w)))
 		}
 	}
 
@@ -207,8 +204,8 @@ func (s *Snake) getWholeSize() int {
 
 func (s *Snake) Eat(a *apple.Apple, score *score.Score) {
 	s.mu.RLock()
-	latest := s.parts[len(s.parts)-1]
-	exists := a.ExistsIn(latest.getCord())
+	latest := s.latestPart()
+	exists := a.ExistsIn(latest.getCords())
 	s.mu.RUnlock()
 
 	if exists {
@@ -218,7 +215,7 @@ func (s *Snake) Eat(a *apple.Apple, score *score.Score) {
 		s.mu.Lock()
 
 		s.size += 50
-		s.speed += 1
+		s.speed += 0.10
 
 		s.mu.Unlock()
 	}
@@ -228,15 +225,10 @@ func (s *Snake) TouchDeadZone() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	head := s.parts[len(s.parts)-1]
-	sl, sr := head.getCord()
+	head := s.latestPart()
+	sl, sr := head.getCords()
 
-	if sl.X > 500 || sl.Y > 500 || sr.X > 500 || sr.Y > 500 {
-		s.dead = true
-		return
-	}
-
-	if sl.X < 0 || sl.Y < 0 || sr.X < 0 || sr.Y < 0 {
+	if sl.X > 500 || sl.Y > 500 || sr.X > 500 || sr.Y > 500 || sl.X < 0 || sl.Y < 0 || sr.X < 0 || sr.Y < 0 {
 		s.dead = true
 		return
 	}
@@ -248,20 +240,24 @@ func (s *Snake) TouchDeadZone() {
 	parts := s.parts[:len(s.parts)-3]
 
 	for _, part := range parts {
-		pl, pr := part.getCord()
+		pl, pr := part.getCords()
 
-		if math.IsOverlapping(pl, pr, sl, sr) {
+		if overlapio.IsOverlapping(pl, pr, sl, sr) {
 			s.dead = true
 			return
 		}
 	}
 }
 
-func (p part) getCord() (math.Cord, math.Cord) {
-	return math.Cord{
+func (s *Snake) latestPart() *part {
+	return s.parts[len(s.parts)-1]
+}
+
+func (p part) getCords() (overlapio.Cord, overlapio.Cord) {
+	return overlapio.Cord{
 		X: p.x,
 		Y: p.y,
-	}, math.Cord{
+	}, overlapio.Cord{
 		X: p.x + p.w,
 		Y: p.y + p.h,
 	}
@@ -282,5 +278,9 @@ func (s Snake) IsTimeUpdate(f int) bool {
 		return true
 	}
 
-	return f%(100-int(s.speed)) == 0
+	if s.speed > 2 {
+		s.speed = 2
+	}
+
+	return f%(8-int(s.speed)) == 0
 }

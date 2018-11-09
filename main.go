@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/3auris/snakery/scene"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 	"os"
@@ -36,14 +37,14 @@ func run() error {
 		return fmt.Errorf("failed to get surface: %v", err)
 	}
 
-	events := make(chan sdl.Event)
-	scene, err := newScene(r)
+	s, err := scene.New(r)
 	if err != nil {
 		return fmt.Errorf("could not create scene, %v", err)
 	}
-	defer scene.destroy()
+	defer s.Destroy()
 
-	errc := scene.run(events)
+	events := make(chan sdl.Event)
+	errc := s.Run(events)
 
 	runtime.LockOSThread()
 	for {
