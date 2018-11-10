@@ -37,11 +37,11 @@ func run() error {
 		return fmt.Errorf("failed to get surface: %v", err)
 	}
 
-	s, err := scene.New(r)
+	s, err := scene.New(r, "res/ubuntu.ttf")
 	if err != nil {
 		return fmt.Errorf("could not create scene, %v", err)
 	}
-	defer s.Destroy()
+	defer s.Clear()
 
 	events := make(chan sdl.Event)
 	errc := s.Run(events)

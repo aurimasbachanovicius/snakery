@@ -1,4 +1,4 @@
-package score
+package object
 
 import (
 	"fmt"
@@ -8,18 +8,18 @@ import (
 	"sync"
 )
 
-type Score struct {
+type score struct {
 	mu sync.RWMutex
 
 	amount int
 	font   *ttf.Font
 }
 
-func New(f *ttf.Font) *Score {
-	return &Score{amount: 0, font: f}
+func NewScore(f *ttf.Font) *score {
+	return &score{amount: 0, font: f}
 }
 
-func (s Score) Paint(r *sdl.Renderer) error {
+func (s score) Paint(r *sdl.Renderer) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -48,17 +48,13 @@ func (s Score) Paint(r *sdl.Renderer) error {
 	return nil
 }
 
-func (s *Score) Increase() {
+func (s *score) Increase() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.amount++
 }
 
-func (s Score) Destroy() {
+func (s score) Destroy() {
 	s.font.Close()
-}
-
-func (s Score) Amount() int {
-	return s.amount
 }

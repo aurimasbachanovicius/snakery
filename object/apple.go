@@ -1,4 +1,4 @@
-package apple
+package object
 
 import (
 	"github.com/3auris/snakery/pkg/overlapio"
@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type Apple struct {
+type apple struct {
 	mu sync.RWMutex
 
 	x, y  int32
@@ -16,11 +16,11 @@ type Apple struct {
 	eaten bool
 }
 
-func New() *Apple {
-	return &Apple{eaten: true, size: 10}
+func NewApple() *apple {
+	return &apple{eaten: true, size: 10}
 }
 
-func (a *Apple) Update() {
+func (a *apple) Update() GameState {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
@@ -37,9 +37,10 @@ func (a *Apple) Update() {
 		a.y = int32(rY)
 	}
 
+	return SnakeRunning
 }
 
-func (a Apple) Paint(r *sdl.Renderer) error {
+func (a apple) Paint(r *sdl.Renderer) error {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
@@ -52,7 +53,7 @@ func (a Apple) Paint(r *sdl.Renderer) error {
 	return nil
 }
 
-func (a Apple) ExistsIn(pl, pr overlapio.Cord) bool {
+func (a apple) ExistsIn(pl, pr overlapio.Cord) bool {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
@@ -72,7 +73,7 @@ func (a Apple) ExistsIn(pl, pr overlapio.Cord) bool {
 	return overlapio.IsOverlapping(l, r, pl, pr)
 }
 
-func (a *Apple) EatApple() {
+func (a *apple) EatApple() {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
