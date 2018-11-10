@@ -24,18 +24,20 @@ func (a *apple) Update() GameState {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
-	if a.eaten == true {
-		a.eaten = false
-
-		rand.Seed(time.Now().UnixNano())
-		rX := rand.Intn(460-1) + 1
-
-		rand.Seed(time.Now().UnixNano())
-		rY := rand.Intn(460-1) + 1
-
-		a.x = int32(rX)
-		a.y = int32(rY)
+	if ! a.eaten {
+		return SnakeRunning
 	}
+
+	a.eaten = false
+
+	rand.Seed(time.Now().UnixNano())
+	rX := rand.Intn(460-1) + 1
+
+	rand.Seed(time.Now().UnixNano())
+	rY := rand.Intn(460-1) + 1
+
+	a.x = int32(rX)
+	a.y = int32(rY)
 
 	return SnakeRunning
 }
@@ -61,10 +63,7 @@ func (a apple) ExistsIn(pl, pr geometrio.Cord) bool {
 		return false
 	}
 
-	l := geometrio.Cord{
-		X: a.x,
-		Y: a.y,
-	}
+	l := geometrio.Cord{X: a.x, Y: a.y}
 	r := geometrio.Cord{
 		X: a.x + a.size,
 		Y: a.y + a.size,
