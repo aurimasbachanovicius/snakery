@@ -11,12 +11,18 @@ import (
 
 type scene struct {
 	r *sdl.Renderer
+	w *sdl.Window
 
 	state  object.GameState
 	paints map[object.GameState][]object.Paintable
 }
 
-func New(r *sdl.Renderer, fontPath string) (*scene, error) {
+func New(fontPath string, screenWidth, screenHeight int32) (*scene, error) {
+	w, r, err := prepareSdl2(int32(screenWidth), int32(screenHeight))
+	if err != nil {
+		return nil, fmt.Errorf("could not prepare sdl2: %v", err)
+	}
+
 	font, err := ttf.OpenFont(fontPath, 100)
 	if err != nil {
 		return nil, fmt.Errorf("could not load font: %v", err)
@@ -24,13 +30,14 @@ func New(r *sdl.Renderer, fontPath string) (*scene, error) {
 
 	apple := object.NewApple()
 	score := object.NewScore(font)
-	snake := object.NewSnake(apple, score, font)
-	deadScreen := object.DeadScreen{Score: *score, Font: *font}
+	snake := object.NewSnake(apple, score, font, object.GameScreen{W: screenWidth, H: screenHeight})
+	deadScreen := object.DeadScreen{Score: score, Font: *font}
 
 	return &scene{
-		r:     r,
-		state: object.SnakeRunning,
+		r: r,
+		w: w,
 
+		state: object.SnakeRunning,
 		paints: map[object.GameState][]object.Paintable{
 			object.SnakeRunning: {snake, apple, score},
 			object.DeadSnake:    {deadScreen},
@@ -121,6 +128,8 @@ func (s scene) paint() error {
 }
 
 func (s scene) Clear() {
+	defer s.clearSdl2()
+
 	for _, objects := range s.paints {
 		for _, paint := range objects {
 			switch p := paint.(type) {

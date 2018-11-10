@@ -8,7 +8,7 @@ import (
 )
 
 type DeadScreen struct {
-	Score score
+	Score *score
 	Font  ttf.Font
 }
 

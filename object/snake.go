@@ -34,20 +34,22 @@ type snake struct {
 
 	lockMove bool
 
-	apple *apple
-	score *score
-	font  *ttf.Font
+	apple  *apple
+	score  *score
+	font   *ttf.Font
+	screen GameScreen
 }
 
-func NewSnake(a *apple, s *score, f *ttf.Font) *snake {
+func NewSnake(a *apple, s *score, f *ttf.Font, scr GameScreen) *snake {
 	return &snake{
 		parts:    []*part{{x: 50, y: 50, w: 120, h: StepSize, vector: Right}},
 		size:     120,
 		lockMove: false,
 
-		apple: a,
-		score: s,
-		font:  f,
+		apple:  a,
+		score:  s,
+		font:   f,
+		screen: scr,
 	}
 }
 
@@ -191,7 +193,14 @@ func (s *snake) touchDeadZone() bool {
 	head := s.latestPart()
 	sl, sr := head.getCords()
 
-	if sl.X > 500 || sl.Y > 500 || sr.X > 500 || sr.Y > 500 || sl.X < 0 || sl.Y < 0 || sr.X < 0 || sr.Y < 0 {
+	if sl.X > s.screen.W ||
+		sl.Y > s.screen.H ||
+		sr.X > s.screen.W ||
+		sr.Y > s.screen.H ||
+		sl.X < 0 ||
+		sl.Y < 0 ||
+		sr.X < 0 ||
+		sr.Y < 0 {
 		return true
 	}
 

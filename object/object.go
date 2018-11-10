@@ -4,6 +4,10 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+type GameScreen struct {
+	W, H int32
+}
+
 type GameState int
 
 const (
