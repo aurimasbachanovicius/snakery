@@ -8,8 +8,9 @@ import (
 )
 
 type DeadScreen struct {
-	Score *score
-	Font  ttf.Font
+	Score  *score
+	Font   ttf.Font
+	Screen GameScreen
 }
 
 func (ds DeadScreen) Paint(r *sdl.Renderer) error {
@@ -31,7 +32,7 @@ func (ds DeadScreen) Paint(r *sdl.Renderer) error {
 	}
 	defer t.Destroy()
 
-	rect := &sdl.Rect{X: 10, Y: 100, W: 490, H: 60}
+	rect := &sdl.Rect{X: 10, Y: int32(ds.Screen.H / 5), W: ds.Screen.W - 10, H: int32(ds.Screen.H / 5)}
 
 	if err := r.Copy(t, nil, rect); err != nil {
 		return fmt.Errorf("could not copy texture: %v", err)

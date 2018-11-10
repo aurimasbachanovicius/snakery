@@ -28,10 +28,12 @@ func New(fontPath string, screenWidth, screenHeight int32) (*scene, error) {
 		return nil, fmt.Errorf("could not load font: %v", err)
 	}
 
+	scrn := object.GameScreen{W: screenWidth, H: screenHeight}
+
 	apple := object.NewApple()
 	score := object.NewScore(font)
-	snake := object.NewSnake(apple, score, font, object.GameScreen{W: screenWidth, H: screenHeight})
-	deadScreen := object.DeadScreen{Score: score, Font: *font}
+	snake := object.NewSnake(apple, score, font, scrn)
+	deadScreen := object.DeadScreen{Score: score, Font: *font, Screen: scrn}
 
 	return &scene{
 		r: r,
@@ -49,7 +51,7 @@ func (s scene) Run(events <-chan sdl.Event) <-chan error {
 	errc := make(chan error)
 
 	go func() {
-		ticker := time.Tick(57 * time.Millisecond)
+		ticker := time.Tick(55 * time.Millisecond)
 
 		for {
 			select {
@@ -101,7 +103,7 @@ func (s *scene) update() {
 	for _, paint := range s.paints[s.state] {
 		switch p := paint.(type) {
 		case object.Updateable:
-			state := p.Update();
+			state := p.Update()
 			if state != s.state {
 				s.state = state
 				return
