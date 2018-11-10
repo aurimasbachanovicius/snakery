@@ -1,4 +1,4 @@
-package overlapio
+package geometrio
 
 import "testing"
 

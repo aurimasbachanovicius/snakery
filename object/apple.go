@@ -1,7 +1,7 @@
 package object
 
 import (
-	"github.com/3auris/snakery/pkg/overlapio"
+	"github.com/3auris/snakery/pkg/geometrio"
 	"github.com/veandco/go-sdl2/sdl"
 	"math/rand"
 	"sync"
@@ -53,7 +53,7 @@ func (a apple) Paint(r *sdl.Renderer) error {
 	return nil
 }
 
-func (a apple) ExistsIn(pl, pr overlapio.Cord) bool {
+func (a apple) ExistsIn(pl, pr geometrio.Cord) bool {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
@@ -61,16 +61,16 @@ func (a apple) ExistsIn(pl, pr overlapio.Cord) bool {
 		return false
 	}
 
-	l := overlapio.Cord{
+	l := geometrio.Cord{
 		X: a.x,
 		Y: a.y,
 	}
-	r := overlapio.Cord{
+	r := geometrio.Cord{
 		X: a.x + a.size,
 		Y: a.y + a.size,
 	}
 
-	return overlapio.IsOverlapping(l, r, pl, pr)
+	return geometrio.IsOverlapping(l, r, pl, pr)
 }
 
 func (a *apple) EatApple() {

@@ -2,7 +2,7 @@ package object
 
 import (
 	"fmt"
-	"github.com/3auris/snakery/pkg/overlapio"
+	"github.com/3auris/snakery/pkg/geometrio"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 	"math"
@@ -213,7 +213,7 @@ func (s *snake) touchDeadZone() bool {
 	for _, part := range parts {
 		pl, pr := part.getCords()
 
-		if overlapio.IsOverlapping(pl, pr, sl, sr) {
+		if geometrio.IsOverlapping(pl, pr, sl, sr) {
 			return true
 		}
 	}
@@ -225,11 +225,11 @@ func (s *snake) latestPart() *part {
 	return s.parts[len(s.parts)-1]
 }
 
-func (p part) getCords() (overlapio.Cord, overlapio.Cord) {
-	return overlapio.Cord{
+func (p part) getCords() (geometrio.Cord, geometrio.Cord) {
+	return geometrio.Cord{
 		X: p.x,
 		Y: p.y,
-	}, overlapio.Cord{
+	}, geometrio.Cord{
 		X: p.x + p.w,
 		Y: p.y + p.h,
 	}
