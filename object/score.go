@@ -8,18 +8,21 @@ import (
 	"sync"
 )
 
-type score struct {
+// Score the game pbject
+type Score struct {
 	mu sync.RWMutex
 
 	amount int
 	font   *ttf.Font
 }
 
-func NewScore(f *ttf.Font) *score {
-	return &score{amount: 0, font: f}
+// NewScore creates Score with default and given values
+func NewScore(f *ttf.Font) *Score {
+	return &Score{amount: 0, font: f}
 }
 
-func (s score) Paint(r *sdl.Renderer) error {
+// Paint the score number to renderer to the corner
+func (s Score) Paint(r *sdl.Renderer) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -48,13 +51,15 @@ func (s score) Paint(r *sdl.Renderer) error {
 	return nil
 }
 
-func (s *score) Increase() {
+// Destroy destroys the opened font
+func (s Score) Destroy() {
+	s.font.Close()
+}
+
+// Increase increased the amount of Score
+func (s *Score) Increase() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.amount++
-}
-
-func (s score) Destroy() {
-	s.font.Close()
 }

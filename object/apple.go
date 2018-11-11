@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-type apple struct {
+// Apple is the game object
+type Apple struct {
 	mu sync.RWMutex
 
 	x, y  int32
@@ -16,11 +17,13 @@ type apple struct {
 	eaten bool
 }
 
-func NewApple() *apple {
-	return &apple{eaten: true, size: 10}
+// NewApple creates new Apple with default values
+func NewApple() *Apple {
+	return &Apple{eaten: true, size: 10}
 }
 
-func (a *apple) Update() GameState {
+// Update check is apple is eaten and changes the state of apple coordinates
+func (a *Apple) Update() GameState {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
@@ -42,7 +45,8 @@ func (a *apple) Update() GameState {
 	return SnakeRunning
 }
 
-func (a apple) Paint(r *sdl.Renderer) error {
+// Paint paints apple to the given renderer
+func (a Apple) Paint(r *sdl.Renderer) error {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
@@ -55,7 +59,8 @@ func (a apple) Paint(r *sdl.Renderer) error {
 	return nil
 }
 
-func (a apple) ExistsIn(pl, pr geometrio.Cord) bool {
+// ExistsIn check is the Apple exists in rectangle between pl and pr coordinates
+func (a Apple) ExistsIn(pl, pr geometrio.Cord) bool {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
@@ -72,7 +77,8 @@ func (a apple) ExistsIn(pl, pr geometrio.Cord) bool {
 	return geometrio.IsOverlapping(l, r, pl, pr)
 }
 
-func (a *apple) EatApple() {
+// EatApple set state of eaten to true
+func (a *Apple) EatApple() {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 

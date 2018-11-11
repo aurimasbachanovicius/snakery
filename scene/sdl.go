@@ -27,7 +27,7 @@ func prepareSdl2(width, height int32) (*sdl.Window, *sdl.Renderer, error) {
 	return w, r, nil
 }
 
-func (s scene) clearSdl2() {
+func (s Scene) clearSdl2() {
 	s.r.Destroy()
 	s.w.Destroy()
 	ttf.Quit()

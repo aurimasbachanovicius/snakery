@@ -12,12 +12,12 @@ import (
 type snakeVector int
 
 const (
-	Up    snakeVector = 1
-	Down  snakeVector = 2
-	Left  snakeVector = 3
-	Right snakeVector = 4
+	up    snakeVector = 1
+	down  snakeVector = 2
+	left  snakeVector = 3
+	right snakeVector = 4
 
-	StepSize int32 = 10
+	stepSize int32 = 10
 )
 
 type part struct {
@@ -26,7 +26,8 @@ type part struct {
 	vector snakeVector
 }
 
-type snake struct {
+// Snake game object
+type Snake struct {
 	mu sync.RWMutex
 
 	parts []*part
@@ -34,15 +35,16 @@ type snake struct {
 
 	lockMove bool
 
-	apple  *apple
-	score  *score
+	apple  *Apple
+	score  *Score
 	font   *ttf.Font
 	screen GameScreen
 }
 
-func NewSnake(a *apple, s *score, f *ttf.Font, scr GameScreen) *snake {
-	return &snake{
-		parts:    []*part{{x: 50, y: 50, w: 120, h: StepSize, vector: Right}},
+// NewSnake create Snake struct with default and given values
+func NewSnake(a *Apple, s *Score, f *ttf.Font, scr GameScreen) *Snake {
+	return &Snake{
+		parts:    []*part{{x: 50, y: 50, w: 120, h: stepSize, vector: right}},
 		size:     120,
 		lockMove: false,
 
@@ -53,7 +55,8 @@ func NewSnake(a *apple, s *score, f *ttf.Font, scr GameScreen) *snake {
 	}
 }
 
-func (s *snake) HandleEvent(event sdl.Event) {
+// HandleEvent handles the movement of snake
+func (s *Snake) HandleEvent(event sdl.Event) {
 	switch ev := event.(type) {
 	case *sdl.KeyboardEvent:
 		if ev.State != sdl.PRESSED {
@@ -62,18 +65,19 @@ func (s *snake) HandleEvent(event sdl.Event) {
 
 		switch event.(*sdl.KeyboardEvent).Keysym.Sym {
 		case sdl.K_LEFT, sdl.K_a:
-			s.changeVector(Left)
+			s.changeVector(left)
 		case sdl.K_RIGHT, sdl.K_d:
-			s.changeVector(Right)
+			s.changeVector(right)
 		case sdl.K_UP, sdl.K_w:
-			s.changeVector(Up)
+			s.changeVector(up)
 		case sdl.K_DOWN, sdl.K_s:
-			s.changeVector(Down)
+			s.changeVector(down)
 		}
 	}
 }
 
-func (s *snake) Update() GameState {
+// Update updates the snake ar gives the GameState
+func (s *Snake) Update() GameState {
 	if s.touchDeadZone() {
 		return DeadSnake
 	}
@@ -84,7 +88,8 @@ func (s *snake) Update() GameState {
 	return SnakeRunning
 }
 
-func (s *snake) Paint(r *sdl.Renderer) error {
+// Paint paints snake to renderer
+func (s *Snake) Paint(r *sdl.Renderer) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -92,21 +97,21 @@ func (s *snake) Paint(r *sdl.Renderer) error {
 
 	for _, part := range s.parts {
 		if err := r.FillRect(&sdl.Rect{X: part.x, Y: part.y, W: part.w, H: part.h}); err != nil {
-			return fmt.Errorf("failed to fill rect with the snake part: %v", err)
+			return fmt.Errorf("failed to fill rect with the Snake part: %v", err)
 		}
 	}
 
 	return nil
 }
 
-func (s *snake) getWholeSize() int {
+func (s *Snake) getWholeSize() int {
 	sum := 0
 
 	for _, part := range s.parts {
 		switch part.vector {
-		case Up, Down:
+		case up, down:
 			sum += int(math.Abs(float64(part.h)))
-		case Left, Right:
+		case left, right:
 			sum += int(math.Abs(float64(part.w)))
 		}
 	}
@@ -114,7 +119,7 @@ func (s *snake) getWholeSize() int {
 	return sum
 }
 
-func (s *snake) eat() {
+func (s *Snake) eat() {
 	s.mu.RLock()
 	latest := s.latestPart()
 	exists := s.apple.ExistsIn(latest.getCords())
@@ -130,7 +135,7 @@ func (s *snake) eat() {
 	}
 }
 
-func (s *snake) move() {
+func (s *Snake) move() {
 	s.lockMove = false
 
 	first := s.parts[0]
@@ -142,51 +147,51 @@ func (s *snake) move() {
 		}
 
 		switch first.vector {
-		case Up:
-			first.h += StepSize
-			first.y -= StepSize
-		case Down:
-			first.h -= StepSize
-			first.y += StepSize
-		case Left:
-			first.x -= StepSize
-			first.w += StepSize
-		case Right:
-			first.x += StepSize
-			first.w -= StepSize
+		case up:
+			first.h += stepSize
+			first.y -= stepSize
+		case down:
+			first.h -= stepSize
+			first.y += stepSize
+		case left:
+			first.x -= stepSize
+			first.w += stepSize
+		case right:
+			first.x += stepSize
+			first.w -= stepSize
 		}
 	}
 
 	latest := s.latestPart()
 	switch latest.vector {
-	case Up:
+	case up:
 		if s.getWholeSize() > s.size {
-			latest.y -= StepSize
+			latest.y -= stepSize
 		} else {
-			latest.h -= StepSize
+			latest.h -= stepSize
 		}
-	case Down:
+	case down:
 		if s.getWholeSize() > s.size {
-			latest.y += StepSize
+			latest.y += stepSize
 		} else {
-			latest.h += StepSize
+			latest.h += stepSize
 		}
-	case Left:
+	case left:
 		if s.getWholeSize() > s.size {
-			latest.x -= StepSize
+			latest.x -= stepSize
 		} else {
-			latest.w -= StepSize
+			latest.w -= stepSize
 		}
-	case Right:
+	case right:
 		if s.getWholeSize() > s.size {
-			latest.x += StepSize
+			latest.x += stepSize
 		} else {
-			latest.w += StepSize
+			latest.w += stepSize
 		}
 	}
 }
 
-func (s *snake) touchDeadZone() bool {
+func (s *Snake) touchDeadZone() bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -221,7 +226,7 @@ func (s *snake) touchDeadZone() bool {
 	return false
 }
 
-func (s *snake) latestPart() *part {
+func (s *Snake) latestPart() *part {
 	return s.parts[len(s.parts)-1]
 }
 
@@ -235,25 +240,25 @@ func (p part) getCords() (geometrio.Cord, geometrio.Cord) {
 	}
 }
 
-func (s snake) canGo(v snakeVector) bool {
+func (s Snake) canGo(v snakeVector) bool {
 	lv := s.latestPart().vector
 
 	if s.lockMove || v == lv {
 		return false
 	}
 
-	if (v == Left || v == Right) && (lv == Left || lv == Right) {
+	if (v == left || v == right) && (lv == left || lv == right) {
 		return false
 	}
 
-	if (v == Up || v == Down) && (lv == Up || lv == Down) {
+	if (v == up || v == down) && (lv == up || lv == down) {
 		return false
 	}
 
 	return true
 }
 
-func (s *snake) changeVector(v snakeVector) {
+func (s *Snake) changeVector(v snakeVector) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -266,30 +271,30 @@ func (s *snake) changeVector(v snakeVector) {
 	p := part{x: latest.x + latest.w, y: latest.y + latest.h, vector: v}
 
 	switch v {
-	case Up:
-		p.x -= StepSize
-		p.y -= StepSize
-		if latest.vector == Left {
-			p.x += StepSize
+	case up:
+		p.x -= stepSize
+		p.y -= stepSize
+		if latest.vector == left {
+			p.x += stepSize
 		}
-		p.w = StepSize
-	case Down:
-		if latest.vector == Right {
-			p.x -= StepSize
+		p.w = stepSize
+	case down:
+		if latest.vector == right {
+			p.x -= stepSize
 		}
 
-		p.w = StepSize
-	case Left:
-		if latest.vector == Down {
-			p.y -= StepSize
+		p.w = stepSize
+	case left:
+		if latest.vector == down {
+			p.y -= stepSize
 		}
-		p.x -= StepSize
-		p.h = StepSize
-	case Right:
-		if latest.vector == Down {
-			p.y -= StepSize
+		p.x -= stepSize
+		p.h = stepSize
+	case right:
+		if latest.vector == down {
+			p.y -= stepSize
 		}
-		p.h = StepSize
+		p.h = stepSize
 	}
 
 	s.parts = append(s.parts, &p)

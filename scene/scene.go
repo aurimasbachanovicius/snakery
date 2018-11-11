@@ -9,7 +9,8 @@ import (
 	"time"
 )
 
-type scene struct {
+// Scene holds paints and state of the current game
+type Scene struct {
 	r *sdl.Renderer
 	w *sdl.Window
 
@@ -17,7 +18,8 @@ type scene struct {
 	paints map[object.GameState][]object.Paintable
 }
 
-func New(fontPath string, screenWidth, screenHeight int32) (*scene, error) {
+// New create new Scene with given parameters
+func New(fontPath string, screenWidth, screenHeight int32) (*Scene, error) {
 	w, r, err := prepareSdl2(int32(screenWidth), int32(screenHeight))
 	if err != nil {
 		return nil, fmt.Errorf("could not prepare sdl2: %v", err)
@@ -35,7 +37,7 @@ func New(fontPath string, screenWidth, screenHeight int32) (*scene, error) {
 	snake := object.NewSnake(apple, score, font, scrn)
 	deadScreen := object.DeadScreen{Score: score, Font: *font, Screen: scrn}
 
-	return &scene{
+	return &Scene{
 		r: r,
 		w: w,
 
@@ -47,7 +49,8 @@ func New(fontPath string, screenWidth, screenHeight int32) (*scene, error) {
 	}, nil
 }
 
-func (s scene) Run(events <-chan sdl.Event) <-chan error {
+// Run runs goroutine and updates all paints and listening of events
+func (s Scene) Run(events <-chan sdl.Event) <-chan error {
 	errc := make(chan error)
 
 	go func() {
@@ -82,7 +85,7 @@ func (s scene) Run(events <-chan sdl.Event) <-chan error {
 	return errc
 }
 
-func (s *scene) handleEvent(event sdl.Event) bool {
+func (s *Scene) handleEvent(event sdl.Event) bool {
 	switch ev := event.(type) {
 	case *sdl.QuitEvent:
 		return true
@@ -99,7 +102,7 @@ func (s *scene) handleEvent(event sdl.Event) bool {
 	return false
 }
 
-func (s *scene) update() {
+func (s *Scene) update() {
 	for _, paint := range s.paints[s.state] {
 		switch p := paint.(type) {
 		case object.Updateable:
@@ -112,7 +115,7 @@ func (s *scene) update() {
 	}
 }
 
-func (s scene) paint() error {
+func (s Scene) paint() error {
 	s.r.Clear()
 
 	s.r.SetDrawColor(255, 255, 255, 255)
@@ -129,7 +132,8 @@ func (s scene) paint() error {
 	return nil
 }
 
-func (s scene) Clear() {
+// Clear removes or destroys all allocated objects to free memory
+func (s Scene) Clear() {
 	defer s.clearSdl2()
 
 	for _, objects := range s.paints {

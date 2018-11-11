@@ -7,12 +7,14 @@ import (
 	"strconv"
 )
 
+// DeadScreen object of game which can be painted
 type DeadScreen struct {
-	Score  *score
+	Score  *Score
 	Font   ttf.Font
 	Screen GameScreen
 }
 
+// Paint paints text and Score to renderer
 func (ds DeadScreen) Paint(r *sdl.Renderer) error {
 	r.SetDrawColor(0, 0, 0, 0)
 	r.FillRect(nil)
