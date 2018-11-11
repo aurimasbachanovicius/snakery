@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/3auris/snakery/scene"
+	"github.com/3auris/snakery/internal/scene"
 	"github.com/veandco/go-sdl2/sdl"
 	"os"
 	"runtime"

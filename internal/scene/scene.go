@@ -2,7 +2,7 @@ package scene
 
 import (
 	"fmt"
-	"github.com/3auris/snakery/object"
+	"github.com/3auris/snakery/internal/object"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 	"os"
