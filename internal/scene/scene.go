@@ -32,7 +32,11 @@ func New(fontPath string, screenWidth, screenHeight int32) (*Scene, error) {
 
 	scrn := object.GameScreen{W: screenWidth, H: screenHeight}
 
-	apple := object.NewApple()
+	apple, err := object.NewApple(r)
+	if err != nil {
+		return nil, fmt.Errorf("could not create apple: %v", err)
+	}
+
 	score := object.NewScore(font)
 	snake := object.NewSnake(apple, score, font, scrn)
 	deadScreen := object.DeadScreen{Score: score, Font: *font, Screen: scrn}
