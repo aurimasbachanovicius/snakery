@@ -68,8 +68,6 @@ func (a Apple) Paint(r *sdl.Renderer) error {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
-	//r.SetDrawColor(255, 255, 255, 0)
-
 	rect := &sdl.Rect{X: a.x, Y: a.y, W: a.size, H: a.size}
 	r.Copy(a.texture, nil, rect)
 
