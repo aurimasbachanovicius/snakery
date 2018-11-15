@@ -54,7 +54,7 @@ func New(fontPath string, screenWidth, screenHeight int32) (*Scene, error) {
 }
 
 // Run runs goroutine and updates all paints and listening of events
-func (s Scene) Run(events <-chan sdl.Event) <-chan error {
+func (s *Scene) Run(events <-chan sdl.Event) <-chan error {
 	errc := make(chan error)
 
 	go func() {
@@ -70,12 +70,11 @@ func (s Scene) Run(events <-chan sdl.Event) <-chan error {
 					}
 				}
 
-				if done := s.handleEvent(e); done {
+				if done := s.handleExit(e); done {
 					os.Exit(0)
-					return
 				}
 			case <-ticker:
-				s.update()
+				s.state = s.update()
 
 				if err := s.paint(); err != nil {
 					errc <- err
@@ -89,7 +88,7 @@ func (s Scene) Run(events <-chan sdl.Event) <-chan error {
 	return errc
 }
 
-func (s *Scene) handleEvent(event sdl.Event) bool {
+func (s *Scene) handleExit(event sdl.Event) bool {
 	switch ev := event.(type) {
 	case *sdl.QuitEvent:
 		return true
@@ -106,17 +105,18 @@ func (s *Scene) handleEvent(event sdl.Event) bool {
 	return false
 }
 
-func (s *Scene) update() {
+func (s Scene) update() object.GameState {
 	for _, paint := range s.paints[s.state] {
 		switch p := paint.(type) {
 		case object.Updateable:
 			state := p.Update()
 			if state != s.state {
-				s.state = state
-				return
+				return state
 			}
 		}
 	}
+
+	return s.state
 }
 
 func (s Scene) paint() error {
