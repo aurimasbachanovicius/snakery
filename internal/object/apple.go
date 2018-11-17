@@ -3,6 +3,7 @@ package object
 import (
 	"fmt"
 	"github.com/3auris/snakery/pkg/geometrio"
+	"github.com/3auris/snakery/pkg/grafio"
 	"github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
 	"math/rand"
@@ -64,7 +65,7 @@ func (a *Apple) Update() GameState {
 }
 
 // Paint paints apple to the given renderer
-func (a Apple) Paint(r *sdl.Renderer) error {
+func (a Apple) Paint(drawer grafio.Drawer) error {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 

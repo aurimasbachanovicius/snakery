@@ -3,6 +3,7 @@ package object
 import (
 	"fmt"
 	"github.com/3auris/snakery/pkg/geometrio"
+	"github.com/3auris/snakery/pkg/grafio"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 	"math"
@@ -78,6 +79,7 @@ func (s *Snake) HandleEvent(event sdl.Event) {
 
 func (s *Snake) reset() {
 	n := NewSnake(s.apple, s.score, s.font, s.screen)
+	s.score.amount = 0
 	s.score = n.score
 	s.size = n.size
 	s.parts = n.parts
@@ -96,7 +98,7 @@ func (s *Snake) Update() GameState {
 }
 
 // Paint paints snake to renderer
-func (s *Snake) Paint(r *sdl.Renderer) error {
+func (s *Snake) Paint(d grafio.Drawer) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 

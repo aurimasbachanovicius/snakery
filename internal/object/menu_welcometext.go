@@ -1,7 +1,8 @@
 package object
 
 import (
-	"fmt"
+	"github.com/3auris/snakery/pkg/grafio"
+	"github.com/pkg/errors"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
@@ -40,55 +41,17 @@ func (wt *WelcomeText) Update() GameState {
 }
 
 // Paint paints text and Score to renderer
-func (wt WelcomeText) Paint(r *sdl.Renderer) error {
-	r.SetDrawColor(255, 255, 255, 0)
-	r.FillRect(nil)
+func (wt WelcomeText) Paint(d grafio.Drawer) error {
+	opts := grafio.TextOpts{Size: 10, XCof: .05, YCof: .15, R: 34, G: 139, B: 34, A: 10}
 
-	c := sdl.Color{R: 34, G: 139, B: 34, A: 10}
-	welcomeSf, err := wt.Font.RenderUTF8Solid("Welcome to the snake game", c)
-	if err != nil {
-		return fmt.Errorf("could not render title: %v", err)
-	}
-	defer welcomeSf.Free()
-
-	startSf, err := wt.Font.RenderUTF8Solid("Press (Enter) to start the game", c)
-	if err != nil {
-		return fmt.Errorf("could not render title: %v", err)
-	}
-	defer startSf.Free()
-
-	welcomeT, err := r.CreateTextureFromSurface(welcomeSf)
-	if err != nil {
-		return fmt.Errorf("could not create texture: %v", err)
-	}
-	defer welcomeT.Destroy()
-
-	startT, err := r.CreateTextureFromSurface(startSf)
-	if err != nil {
-		return fmt.Errorf("could not create texture: %v", err)
-	}
-	defer startT.Destroy()
-
-	welcomeRect := &sdl.Rect{
-		X: size(wt.Screen.W, .05),
-		Y: size(wt.Screen.H, .15),
-		W: size(wt.Screen.W, .90),
-		H: size(wt.Screen.H, .10),
+	if err := d.Text("Welcome to the snake game", opts); err != nil {
+		return errors.Wrap(err, "failed to draw the text")
 	}
 
-	startRect := &sdl.Rect{
-		X: size(wt.Screen.W, .05),
-		Y: size(wt.Screen.H, .30),
-		W: size(wt.Screen.W, .90),
-		H: size(wt.Screen.H, .10),
-	}
+	opts.YCof = .30
 
-	if err := r.Copy(welcomeT, nil, welcomeRect); err != nil {
-		return fmt.Errorf("could not copy texture: %v", err)
-	}
-
-	if err := r.Copy(startT, nil, startRect); err != nil {
-		return fmt.Errorf("could not copy texture: %v", err)
+	if err := d.Text("Press (Enter) to start the game", opts); err != nil {
+		return errors.Wrap(err, "failed to draw the text")
 	}
 
 	return nil

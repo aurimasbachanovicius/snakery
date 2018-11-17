@@ -1,6 +1,7 @@
 package object
 
 import (
+	"github.com/3auris/snakery/pkg/grafio"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -25,7 +26,7 @@ const (
 
 // Paintable paints something to sdl renderer
 type Paintable interface {
-	Paint(r *sdl.Renderer) error
+	Paint(d grafio.Drawer) error
 }
 
 // Updateable object data can or should be updated every each frame with certain information in function

@@ -2,6 +2,7 @@ package object
 
 import (
 	"fmt"
+	"github.com/3auris/snakery/pkg/grafio"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 	"strconv"
@@ -22,7 +23,7 @@ func NewScore(f *ttf.Font) *Score {
 }
 
 // Paint the score number to renderer to the corner
-func (s Score) Paint(r *sdl.Renderer) error {
+func (s Score) Paint(r grafio.Drawer) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
