@@ -76,6 +76,13 @@ func (s *Snake) HandleEvent(event sdl.Event) {
 	}
 }
 
+func (s *Snake) reset() {
+	n := NewSnake(s.apple, s.score, s.font, s.screen)
+	s.score = n.score
+	s.size = n.size
+	s.parts = n.parts
+}
+
 // Update updates the snake ar gives the GameState
 func (s *Snake) Update() GameState {
 	if s.touchDeadZone() {

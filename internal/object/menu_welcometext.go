@@ -9,6 +9,7 @@ import (
 type WelcomeText struct {
 	Font   ttf.Font
 	Screen GameScreen
+	Snake  *Snake
 
 	changeState bool
 }
@@ -29,6 +30,8 @@ func (wt *WelcomeText) HandleEvent(event sdl.Event) {
 
 func (wt *WelcomeText) Update() GameState {
 	if wt.changeState {
+		wt.Snake.reset()
+
 		wt.changeState = false
 		return SnakeRunning
 	}
