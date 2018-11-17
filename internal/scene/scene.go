@@ -39,14 +39,16 @@ func New(fontPath string, screenWidth, screenHeight int32) (*Scene, error) {
 
 	score := object.NewScore(font)
 	snake := object.NewSnake(apple, score, font, scrn)
-	deadScreen := object.DeadScreen{Score: score, Font: *font, Screen: scrn}
+	deadScreen := &object.DeadScreen{Score: score, Font: *font, Screen: scrn}
+	menuScreen := &object.WelcomeText{Font: *font, Screen: scrn}
 
 	return &Scene{
 		r: r,
 		w: w,
 
-		state: object.SnakeRunning,
+		state: object.MenuScreen,
 		paints: map[object.GameState][]object.Paintable{
+			object.MenuScreen:   {menuScreen},
 			object.SnakeRunning: {snake, apple, score},
 			object.DeadSnake:    {deadScreen},
 		},

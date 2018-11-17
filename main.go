@@ -18,7 +18,7 @@ func main() {
 func run() error {
 	s, err := scene.New("res/ubuntu.ttf", 500, 500)
 	if err != nil {
-		return fmt.Errorf("could not create scene, %v", err)
+		return fmt.Errorf("could not create scene: %v", err)
 	}
 	defer s.Clear()
 

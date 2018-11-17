@@ -18,6 +18,9 @@ const (
 
 	// DeadSnake state when Snake touches something and dies and need to show dead screen
 	DeadSnake GameState = 2
+
+	// MenuScreen state when There's menu shown for setting and entering into game
+	MenuScreen GameState = 3
 )
 
 // Paintable paints something to sdl renderer
@@ -38,4 +41,8 @@ type Destroyable interface {
 // Handleable it can handle input from sdl events
 type Handleable interface {
 	HandleEvent(event sdl.Event)
+}
+
+func size(size int32, cof float32) int32 {
+	return int32(float32(size) * (float32(cof)))
 }

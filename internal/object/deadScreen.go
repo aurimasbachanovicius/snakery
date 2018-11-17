@@ -12,6 +12,31 @@ type DeadScreen struct {
 	Score  *Score
 	Font   ttf.Font
 	Screen GameScreen
+
+	toMenu bool
+}
+
+func (ds *DeadScreen) HandleEvent(event sdl.Event) {
+	switch ev := event.(type) {
+	case *sdl.KeyboardEvent:
+		if ev.State != sdl.PRESSED {
+			break
+		}
+
+		switch event.(*sdl.KeyboardEvent).Keysym.Sym {
+		case sdl.K_RETURN:
+			ds.toMenu = true
+		}
+	}
+}
+
+func (ds *DeadScreen) Update() GameState {
+	if ds.toMenu {
+		ds.toMenu = false
+		return MenuScreen
+	}
+
+	return DeadSnake
 }
 
 // Paint paints text and Score to renderer
@@ -22,23 +47,50 @@ func (ds DeadScreen) Paint(r *sdl.Renderer) error {
 	sAmount := strconv.Itoa(ds.Score.amount)
 
 	c := sdl.Color{R: 255, G: 255, B: 255, A: 255}
-	sf, err := ds.Font.RenderUTF8Solid("Final score: "+sAmount, c)
+	scoreSf, err := ds.Font.RenderUTF8Solid("Final score: "+sAmount, c)
 	if err != nil {
 		return fmt.Errorf("could not render title: %v", err)
 	}
-	defer sf.Free()
+	defer scoreSf.Free()
 
-	t, err := r.CreateTextureFromSurface(sf)
+	restartSf, err := ds.Font.RenderUTF8Solid("Press (Enter) to go to menu", c)
+	if err != nil {
+		return fmt.Errorf("could not render title: %v", err)
+	}
+	defer restartSf.Free()
+
+	scoreT, err := r.CreateTextureFromSurface(scoreSf)
 	if err != nil {
 		return fmt.Errorf("could not create texture: %v", err)
 	}
-	defer t.Destroy()
+	defer scoreT.Destroy()
 
-	rect := &sdl.Rect{X: 10, Y: int32(ds.Screen.H / 5), W: ds.Screen.W - 10, H: int32(ds.Screen.H / 5)}
+	restartT, err := r.CreateTextureFromSurface(restartSf)
+	if err != nil {
+		return fmt.Errorf("could not create texture: %v", err)
+	}
+	defer restartT.Destroy()
 
-	if err := r.Copy(t, nil, rect); err != nil {
+	scoreRect := &sdl.Rect{
+		X: size(ds.Screen.W, .05),
+		Y: size(ds.Screen.H, .15),
+		W: size(ds.Screen.W, .90),
+		H: size(ds.Screen.H, .20),
+	}
+
+	restartRect := &sdl.Rect{
+		X: size(ds.Screen.W, .05),
+		Y: size(ds.Screen.H, .40),
+		W: size(ds.Screen.W, .90),
+		H: size(ds.Screen.H, .10),
+	}
+
+	if err := r.Copy(scoreT, nil, scoreRect); err != nil {
 		return fmt.Errorf("could not copy texture: %v", err)
 	}
 
+	if err := r.Copy(restartT, nil, restartRect); err != nil {
+		return fmt.Errorf("could not copy texture: %v", err)
+	}
 	return nil
 }
