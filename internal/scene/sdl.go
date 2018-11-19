@@ -6,7 +6,7 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-func prepareSdl2(width, height int32) (*sdl.Window, *sdl.Renderer, error) {
+func PrepareSdl2(width, height int32) (*sdl.Renderer, func(), error) {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		return nil, nil, fmt.Errorf("could not init sdl: %v", err)
 	}
@@ -24,12 +24,12 @@ func prepareSdl2(width, height int32) (*sdl.Window, *sdl.Renderer, error) {
 		return nil, nil, fmt.Errorf("failed to get surface: %v", err)
 	}
 
-	return w, r, nil
-}
+	destroy := func() {
+		r.Destroy()
+		w.Destroy()
+		ttf.Quit()
+		sdl.Quit()
+	}
 
-func (s Scene) clearSdl2() {
-	s.r.Destroy()
-	s.w.Destroy()
-	ttf.Quit()
-	sdl.Quit()
+	return r, destroy, nil
 }

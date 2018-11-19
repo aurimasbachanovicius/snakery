@@ -1,6 +1,7 @@
 package object
 
 import (
+	"github.com/3auris/snakery/pkg/grafio"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -25,7 +26,7 @@ const (
 
 // Paintable paints something to sdl renderer
 type Paintable interface {
-	Paint(r *sdl.Renderer) error
+	Paint(d grafio.Drawer) error
 }
 
 // Updateable object data can or should be updated every each frame with certain information in function
@@ -33,16 +34,7 @@ type Updateable interface {
 	Update() GameState
 }
 
-// Destroyable something created in Update() and can be Destroyed after exit of program to save memory
-type Destroyable interface {
-	Destroy()
-}
-
 // Handleable it can handle input from sdl events
 type Handleable interface {
 	HandleEvent(event sdl.Event)
-}
-
-func size(size int32, cof float32) int32 {
-	return int32(float32(size) * (float32(cof)))
 }

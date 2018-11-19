@@ -1,7 +1,8 @@
 package object
 
 import (
-	"fmt"
+	"github.com/3auris/snakery/pkg/grafio"
+	"github.com/pkg/errors"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 	"strconv"
@@ -40,57 +41,22 @@ func (ds *DeadScreen) Update() GameState {
 }
 
 // Paint paints text and Score to renderer
-func (ds DeadScreen) Paint(r *sdl.Renderer) error {
-	r.SetDrawColor(0, 0, 0, 0)
-	r.FillRect(nil)
-
-	sAmount := strconv.Itoa(ds.Score.amount)
-
-	c := sdl.Color{R: 255, G: 255, B: 255, A: 255}
-	scoreSf, err := ds.Font.RenderUTF8Solid("Final score: "+sAmount, c)
-	if err != nil {
-		return fmt.Errorf("could not render title: %v", err)
-	}
-	defer scoreSf.Free()
-
-	restartSf, err := ds.Font.RenderUTF8Solid("Press (Enter) to go to menu", c)
-	if err != nil {
-		return fmt.Errorf("could not render title: %v", err)
-	}
-	defer restartSf.Free()
-
-	scoreT, err := r.CreateTextureFromSurface(scoreSf)
-	if err != nil {
-		return fmt.Errorf("could not create texture: %v", err)
-	}
-	defer scoreT.Destroy()
-
-	restartT, err := r.CreateTextureFromSurface(restartSf)
-	if err != nil {
-		return fmt.Errorf("could not create texture: %v", err)
-	}
-	defer restartT.Destroy()
-
-	scoreRect := &sdl.Rect{
-		X: size(ds.Screen.W, .05),
-		Y: size(ds.Screen.H, .15),
-		W: size(ds.Screen.W, .90),
-		H: size(ds.Screen.H, .20),
+func (ds DeadScreen) Paint(d grafio.Drawer) error {
+	if err := d.Background(0, 0, 0, 0); err != nil {
+		return errors.Wrap(err, "could not set background")
 	}
 
-	restartRect := &sdl.Rect{
-		X: size(ds.Screen.W, .05),
-		Y: size(ds.Screen.H, .40),
-		W: size(ds.Screen.W, .90),
-		H: size(ds.Screen.H, .10),
+	opts := grafio.TextOpts{Size: 20, XCof: .05, YCof: .15, Color: grafio.RGBA{R: 255, G: 255, B: 255, A: 255}}
+
+	if err := d.Text("Final score: "+strconv.Itoa(ds.Score.amount), opts); err != nil {
+		return errors.Wrap(err, "could not draw amount score text")
 	}
 
-	if err := r.Copy(scoreT, nil, scoreRect); err != nil {
-		return fmt.Errorf("could not copy texture: %v", err)
-	}
+	opts.Size = 10
+	opts.YCof = .30
 
-	if err := r.Copy(restartT, nil, restartRect); err != nil {
-		return fmt.Errorf("could not copy texture: %v", err)
+	if err := d.Text("Press (Enter) to restart the game", opts); err != nil {
+		return errors.Wrap(err, "could not draw how to restart game text")
 	}
 	return nil
 }
