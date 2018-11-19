@@ -27,9 +27,9 @@ func New(d grafio.Drawer) (*Scene, error) {
 	//	return nil, fmt.Errorf("could not create apple: %v", err)
 	//}
 
-	//score := object.NewScore(font)
-	//snake := object.NewSnake(apple, score, font, scrn)
-	//deadScreen := &object.DeadScreen{Score: score, Font: *font, Screen: scrn}
+	score := object.NewScore()
+	snake := object.NewSnake(apple, score, scrn)
+	deadScreen := &object.DeadScreen{Score: score, Screen: scrn}
 
 	scrn := object.GameScreen{W: d.ScreenWidth(), H: d.ScreenHeight()}
 	menuScreen := &object.WelcomeText{Screen: scrn}

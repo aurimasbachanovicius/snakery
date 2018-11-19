@@ -25,6 +25,7 @@ func run() error {
 	defer destroy()
 
 	drawer, err := grafio.NewSdl2Draw(r, 500, 500)
+	
 	free, err := drawer.LoadResources("res/fonts", "res/textures")
 	if err != nil {
 		return errors.Wrap(err, "could not load resources")

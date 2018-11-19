@@ -20,6 +20,18 @@ type Sdl2Draw struct {
 	w, h int32
 }
 
+func (s *Sdl2Draw) Rectangle(x, y, w, h int32, rgba RGBA) error {
+	if err := s.r.SetDrawColor(rgba.R, rgba.G, rgba.B, rgba.A); err != nil {
+		return errors.Wrap(err, "could not set draw color")
+	}
+
+	if err := s.r.FillRect(&sdl.Rect{X: x, Y: y, W: w, H: h}); err != nil {
+		return errors.Wrap(err, "could not fill rect")
+	}
+
+	return nil
+}
+
 func (s Sdl2Draw) ScreenHeight() int32 {
 	return s.h
 }
@@ -54,7 +66,7 @@ func (s *Sdl2Draw) Background(r, g, b, a uint8) error {
 }
 
 func (s *Sdl2Draw) Text(txt string, opts TextOpts) error {
-	c := sdl.Color{R: opts.R, G: opts.G, B: opts.B, A: opts.A}
+	c := sdl.Color{R: opts.Color.R, G: opts.Color.G, B: opts.Color.B, A: opts.Color.A}
 	surface, err := s.fonts[s.mainFont].RenderUTF8Solid(txt, c)
 	if err != nil {
 		return errors.Wrap(err, "could not render title")

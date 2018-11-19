@@ -42,7 +42,7 @@ func (wt *WelcomeText) Update() GameState {
 
 // Paint paints text and Score to renderer
 func (wt WelcomeText) Paint(d grafio.Drawer) error {
-	opts := grafio.TextOpts{Size: 10, XCof: .05, YCof: .15, R: 34, G: 139, B: 34, A: 10}
+	opts := grafio.TextOpts{Size: 10, XCof: .05, YCof: .15, Color: grafio.RGBA{R: 34, G: 139, B: 34, A: 10}}
 
 	if err := d.Text("Welcome to the snake game", opts); err != nil {
 		return errors.Wrap(err, "failed to draw the text")
