@@ -3,6 +3,7 @@ package grafio
 type RGBA struct {
 	R, G, B, A uint8
 }
+
 type TextAlign int
 
 const Right TextAlign = 2
