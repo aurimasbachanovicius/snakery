@@ -11,9 +11,11 @@ import (
 
 type Sdl2Draw struct {
 	r *sdl.Renderer
-	f *ttf.Font
 
-	textures []*sdl.Texture
+	fonts    map[string]*ttf.Font
+	textures map[string]*sdl.Texture
+
+	mainFont string
 
 	w, h int32
 }
@@ -28,9 +30,12 @@ func (s Sdl2Draw) ScreenWidth() int32 {
 
 func NewSdl2Draw(r *sdl.Renderer, w, h int32) (*Sdl2Draw, error) {
 	return &Sdl2Draw{
-		r: r,
-		//f: font,
+		mainFont: "ubuntu.ttf",
 
+		fonts:    map[string]*ttf.Font{},
+		textures: map[string]*sdl.Texture{},
+
+		r: r,
 		w: w,
 		h: h,
 	}, nil
@@ -50,7 +55,7 @@ func (s *Sdl2Draw) Background(r, g, b, a uint8) error {
 
 func (s *Sdl2Draw) Text(txt string, opts TextOpts) error {
 	c := sdl.Color{R: opts.R, G: opts.G, B: opts.B, A: opts.A}
-	surface, err := s.f.RenderUTF8Solid(txt, c)
+	surface, err := s.fonts[s.mainFont].RenderUTF8Solid(txt, c)
 	if err != nil {
 		return errors.Wrap(err, "could not render title")
 	}
@@ -95,12 +100,12 @@ func (s *Sdl2Draw) Present(f func() error) error {
 }
 
 func (s *Sdl2Draw) LoadResources(fontsPath, texturesPath string) (func() error, error) {
-	files, err := ioutil.ReadDir(texturesPath)
+	textures, err := ioutil.ReadDir(texturesPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not read dir")
 	}
 
-	for _, f := range files {
+	for _, f := range textures {
 		if f.IsDir() {
 			continue
 		}
@@ -110,21 +115,41 @@ func (s *Sdl2Draw) LoadResources(fontsPath, texturesPath string) (func() error, 
 			return nil, fmt.Errorf("Failed to create texture: %v\n", err)
 		}
 
-		t, err := s.r.CreateTextureFromSurface(image)
+		texture, err := s.r.CreateTextureFromSurface(image)
 		if err != nil {
 			return nil, fmt.Errorf("Failed to create texture: %v\n", err)
 		}
 		image.Free()
 
-		s.textures = append(s.textures, t)
+		s.textures[f.Name()] = texture
 	}
 
-	return func() error {
-		for _, texture := range s.textures {
-			if err := texture.Destroy(); err != nil {
-				return errors.Wrap(err, "could not destroy texture")
-			}
+	fonts, err := ioutil.ReadDir(fontsPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not read dir")
+	}
+
+	for _, f := range fonts {
+		font, err := ttf.OpenFont(fontsPath+"/"+f.Name(), 100)
+		if err != nil {
+			return nil, fmt.Errorf("could not load font: %v", err)
 		}
-		return nil
-	}, nil
+
+		s.fonts[f.Name()] = font
+	}
+
+	return func() error { return s.destroy() }, nil
+}
+
+func (s *Sdl2Draw) destroy() error {
+	for _, texture := range s.textures {
+		if err := texture.Destroy(); err != nil {
+			return errors.Wrap(err, "could not destroy texture")
+		}
+	}
+
+	for _, font := range s.fonts {
+		font.Close()
+	}
+	return nil
 }

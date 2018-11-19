@@ -22,8 +22,6 @@ type Scene struct {
 // New create new Scene with given parameters
 func New(d grafio.Drawer) (*Scene, error) {
 
-	//scrn := object.GameScreen{W: d.ScreenWidth(), H: d.ScreenHeight()}
-
 	//apple, err := object.NewApple(r)
 	//if err != nil {
 	//	return nil, fmt.Errorf("could not create apple: %v", err)
@@ -32,7 +30,9 @@ func New(d grafio.Drawer) (*Scene, error) {
 	//score := object.NewScore(font)
 	//snake := object.NewSnake(apple, score, font, scrn)
 	//deadScreen := &object.DeadScreen{Score: score, Font: *font, Screen: scrn}
-	//menuScreen := &object.WelcomeText{Font: *font, Screen: scrn, Snake: snake}
+
+	scrn := object.GameScreen{W: d.ScreenWidth(), H: d.ScreenHeight()}
+	menuScreen := &object.WelcomeText{Screen: scrn}
 
 	return &Scene{
 		//r:      r,
@@ -41,7 +41,7 @@ func New(d grafio.Drawer) (*Scene, error) {
 
 		state: object.MenuScreen,
 		paints: map[object.GameState][]object.Paintable{
-			//object.MenuScreen:   {menuScreen},
+			object.MenuScreen: {menuScreen},
 			//object.SnakeRunning: {snake, apple, score},
 			//object.DeadSnake:    {deadScreen},
 		},
