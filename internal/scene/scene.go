@@ -21,7 +21,6 @@ type Scene struct {
 
 // New create new Scene with given parameters
 func New(d grafio.Drawer) (*Scene, error) {
-
 	scrn := object.GameScreen{W: d.ScreenWidth(), H: d.ScreenHeight()}
 
 	apple := object.NewApple()
