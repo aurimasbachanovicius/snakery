@@ -1,12 +1,10 @@
 package scene
 
 import (
-	"fmt"
 	"github.com/3auris/snakery/internal/object"
 	"github.com/3auris/snakery/pkg/grafio"
 	"github.com/pkg/errors"
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/veandco/go-sdl2/ttf"
 	"os"
 	"time"
 )
@@ -22,43 +20,29 @@ type Scene struct {
 }
 
 // New create new Scene with given parameters
-func New(fontPath string, screenWidth, screenHeight int32) (*Scene, error) {
-	w, r, err := prepareSdl2(int32(screenWidth), int32(screenHeight))
-	if err != nil {
-		return nil, fmt.Errorf("could not prepare sdl2: %v", err)
-	}
+func New(d grafio.Drawer) (*Scene, error) {
 
-	drawer, err := grafio.NewSdl2Draw(r, "res/ubuntu.ttf", screenWidth, screenHeight)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not create sdl2drawer")
-	}
+	//scrn := object.GameScreen{W: d.ScreenWidth(), H: d.ScreenHeight()}
 
-	font, err := ttf.OpenFont(fontPath, 100)
-	if err != nil {
-		return nil, fmt.Errorf("could not load font: %v", err)
-	}
+	//apple, err := object.NewApple(r)
+	//if err != nil {
+	//	return nil, fmt.Errorf("could not create apple: %v", err)
+	//}
 
-	scrn := object.GameScreen{W: screenWidth, H: screenHeight}
-
-	apple, err := object.NewApple(r)
-	if err != nil {
-		return nil, fmt.Errorf("could not create apple: %v", err)
-	}
-
-	score := object.NewScore(font)
-	snake := object.NewSnake(apple, score, font, scrn)
+	//score := object.NewScore(font)
+	//snake := object.NewSnake(apple, score, font, scrn)
 	//deadScreen := &object.DeadScreen{Score: score, Font: *font, Screen: scrn}
-	menuScreen := &object.WelcomeText{Font: *font, Screen: scrn, Snake: snake}
+	//menuScreen := &object.WelcomeText{Font: *font, Screen: scrn, Snake: snake}
 
 	return &Scene{
-		r:      r,
-		w:      w,
-		drawer: drawer,
+		//r:      r,
+		//w:      w,
+		drawer: d,
 
 		state: object.MenuScreen,
 		paints: map[object.GameState][]object.Paintable{
-			object.MenuScreen:   {menuScreen},
-			object.SnakeRunning: {snake, apple, score},
+			//object.MenuScreen:   {menuScreen},
+			//object.SnakeRunning: {snake, apple, score},
 			//object.DeadSnake:    {deadScreen},
 		},
 	}, nil
@@ -131,7 +115,7 @@ func (s Scene) update() object.GameState {
 }
 
 func (s Scene) paint() error {
-	err := s.drawer.Presentation(func() error {
+	err := s.drawer.Present(func() error {
 		for _, paint := range s.paints[s.state] {
 			if err := paint.Paint(s.drawer); err != nil {
 				return errors.Wrap(err, "failed to paint")
@@ -149,8 +133,6 @@ func (s Scene) paint() error {
 
 // Clear removes or destroys all allocated objects to free memory
 func (s Scene) Clear() {
-	defer s.clearSdl2()
-
 	for _, objects := range s.paints {
 		for _, paint := range objects {
 			switch p := paint.(type) {

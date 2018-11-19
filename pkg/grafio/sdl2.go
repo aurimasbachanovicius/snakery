@@ -1,27 +1,35 @@
 package grafio
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
+	"github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
+	"io/ioutil"
 )
 
 type Sdl2Draw struct {
 	r *sdl.Renderer
 	f *ttf.Font
 
+	textures []*sdl.Texture
+
 	w, h int32
 }
 
-func NewSdl2Draw(r *sdl.Renderer, fontPath string, w, h int32) (*Sdl2Draw, error) {
-	font, err := ttf.OpenFont(fontPath, 100)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not load font")
-	}
+func (s Sdl2Draw) ScreenHeight() int32 {
+	return s.h
+}
 
+func (s Sdl2Draw) ScreenWidth() int32 {
+	return s.w
+}
+
+func NewSdl2Draw(r *sdl.Renderer, w, h int32) (*Sdl2Draw, error) {
 	return &Sdl2Draw{
 		r: r,
-		f: font,
+		//f: font,
 
 		w: w,
 		h: h,
@@ -68,7 +76,7 @@ func (s *Sdl2Draw) Text(txt string, opts TextOpts) error {
 	return nil
 }
 
-func (s *Sdl2Draw) Presentation(f func() error) error {
+func (s *Sdl2Draw) Present(f func() error) error {
 	if err := s.r.Clear(); err != nil {
 		return errors.Wrap(err, "could not clear the renderer")
 	}
@@ -84,4 +92,39 @@ func (s *Sdl2Draw) Presentation(f func() error) error {
 	s.r.Present()
 
 	return nil
+}
+
+func (s *Sdl2Draw) LoadResources(fontsPath, texturesPath string) (func() error, error) {
+	files, err := ioutil.ReadDir(texturesPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not read dir")
+	}
+
+	for _, f := range files {
+		if f.IsDir() {
+			continue
+		}
+
+		image, err := img.Load(texturesPath + "/" + f.Name())
+		if err != nil {
+			return nil, fmt.Errorf("Failed to create texture: %v\n", err)
+		}
+
+		t, err := s.r.CreateTextureFromSurface(image)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to create texture: %v\n", err)
+		}
+		image.Free()
+
+		s.textures = append(s.textures, t)
+	}
+
+	return func() error {
+		for _, texture := range s.textures {
+			if err := texture.Destroy(); err != nil {
+				return errors.Wrap(err, "could not destroy texture")
+			}
+		}
+		return nil
+	}, nil
 }

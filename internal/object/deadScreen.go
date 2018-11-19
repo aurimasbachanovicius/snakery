@@ -2,6 +2,7 @@ package object
 
 import (
 	"fmt"
+	"github.com/3auris/snakery/pkg/grafio"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 	"strconv"
@@ -40,9 +41,9 @@ func (ds *DeadScreen) Update() GameState {
 }
 
 // Paint paints text and Score to renderer
-func (ds DeadScreen) Paint(r *sdl.Renderer) error {
-	r.SetDrawColor(0, 0, 0, 0)
-	r.FillRect(nil)
+func (ds DeadScreen) Paint(d grafio.Drawer) error {
+	//r.SetDrawColor(0, 0, 0, 0)
+	//r.FillRect(nil)
 
 	sAmount := strconv.Itoa(ds.Score.amount)
 
@@ -59,38 +60,38 @@ func (ds DeadScreen) Paint(r *sdl.Renderer) error {
 	}
 	defer restartSf.Free()
 
-	scoreT, err := r.CreateTextureFromSurface(scoreSf)
+	//scoreT, err := r.CreateTextureFromSurface(scoreSf)
 	if err != nil {
 		return fmt.Errorf("could not create texture: %v", err)
 	}
-	defer scoreT.Destroy()
+	//defer scoreT.Destroy()
 
-	restartT, err := r.CreateTextureFromSurface(restartSf)
+	//restartT, err := r.CreateTextureFromSurface(restartSf)
 	if err != nil {
 		return fmt.Errorf("could not create texture: %v", err)
 	}
-	defer restartT.Destroy()
+	//defer restartT.Destroy()
 
-	scoreRect := &sdl.Rect{
-		X: size(ds.Screen.W, .05),
-		Y: size(ds.Screen.H, .15),
-		W: size(ds.Screen.W, .90),
-		H: size(ds.Screen.H, .20),
-	}
+	//scoreRect := &sdl.Rect{
+	//	X: size(ds.Screen.W, .05),
+	//	Y: size(ds.Screen.H, .15),
+	//	W: size(ds.Screen.W, .90),
+	//	H: size(ds.Screen.H, .20),
+	//}
+	//
+	//restartRect := &sdl.Rect{
+	//	X: size(ds.Screen.W, .05),
+	//	Y: size(ds.Screen.H, .40),
+	//	W: size(ds.Screen.W, .90),
+	//	H: size(ds.Screen.H, .10),
+	//}
 
-	restartRect := &sdl.Rect{
-		X: size(ds.Screen.W, .05),
-		Y: size(ds.Screen.H, .40),
-		W: size(ds.Screen.W, .90),
-		H: size(ds.Screen.H, .10),
-	}
-
-	if err := r.Copy(scoreT, nil, scoreRect); err != nil {
-		return fmt.Errorf("could not copy texture: %v", err)
-	}
-
-	if err := r.Copy(restartT, nil, restartRect); err != nil {
-		return fmt.Errorf("could not copy texture: %v", err)
-	}
+	//if err := r.Copy(scoreT, nil, scoreRect); err != nil {
+	//	return fmt.Errorf("could not copy texture: %v", err)
+	//}
+	//
+	//if err := r.Copy(restartT, nil, restartRect); err != nil {
+	//	return fmt.Errorf("could not copy texture: %v", err)
+	//}
 	return nil
 }

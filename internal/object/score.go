@@ -36,18 +36,18 @@ func (s Score) Paint(r grafio.Drawer) error {
 	}
 	defer sf.Free()
 
-	t, err := r.CreateTextureFromSurface(sf)
-	if err != nil {
-		return fmt.Errorf("could not create texture: %v", err)
-	}
-	defer t.Destroy()
-
-	width := int32(len(sAmount)) * 16
-	rect := &sdl.Rect{X: 500 - width - 10, Y: 10, W: 0 + width, H: 20}
-
-	if err := r.Copy(t, nil, rect); err != nil {
-		return fmt.Errorf("could not copy texture: %v", err)
-	}
+	//t, err := r.CreateTextureFromSurface(sf)
+	//if err != nil {
+	//	return fmt.Errorf("could not create texture: %v", err)
+	//}
+	//defer t.Destroy()
+	//
+	//width := int32(len(sAmount)) * 16
+	//rect := &sdl.Rect{X: 500 - width - 10, Y: 10, W: 0 + width, H: 20}
+	//
+	//if err := r.Copy(t, nil, rect); err != nil {
+	//	return fmt.Errorf("could not copy texture: %v", err)
+	//}
 
 	return nil
 }

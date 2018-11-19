@@ -69,8 +69,8 @@ func (a Apple) Paint(drawer grafio.Drawer) error {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
-	rect := &sdl.Rect{X: a.x, Y: a.y, W: a.size, H: a.size}
-	r.Copy(a.texture, nil, rect)
+	//rect := &sdl.Rect{X: a.x, Y: a.y, W: a.size, H: a.size}
+	//r.Copy(a.texture, nil, rect)
 
 	return nil
 }

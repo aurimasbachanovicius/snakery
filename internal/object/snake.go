@@ -1,7 +1,6 @@
 package object
 
 import (
-	"fmt"
 	"github.com/3auris/snakery/pkg/geometrio"
 	"github.com/3auris/snakery/pkg/grafio"
 	"github.com/veandco/go-sdl2/sdl"
@@ -102,13 +101,13 @@ func (s *Snake) Paint(d grafio.Drawer) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	r.SetDrawColor(34, 139, 34, 10)
+	//r.SetDrawColor(34, 139, 34, 10)
 
-	for _, part := range s.parts {
-		if err := r.FillRect(&sdl.Rect{X: part.x, Y: part.y, W: part.w, H: part.h}); err != nil {
-			return fmt.Errorf("failed to fill rect with the Snake part: %v", err)
-		}
-	}
+	//for _, part := range s.parts {
+	//	if err := r.FillRect(&sdl.Rect{X: part.x, Y: part.y, W: part.w, H: part.h}); err != nil {
+	//		return fmt.Errorf("failed to fill rect with the Snake part: %v", err)
+	//	}
+	//}
 
 	return nil
 }

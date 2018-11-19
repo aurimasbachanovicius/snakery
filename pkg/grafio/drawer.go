@@ -9,7 +9,12 @@ type TextOpts struct {
 type Drawer interface {
 	Text(txt string, opts TextOpts) error
 	Background(r, g, b, a uint8) error
-	Presentation(f func() error) error // somehow drop sdl.Renderer from interface
+
+	Present(f func() error) error
+	LoadResources(fontsPath, texturesPath string) (func() error, error)
+
+	ScreenHeight() int32
+	ScreenWidth() int32
 }
 
 func sizeCal(size int32, cof float32) int32 {
