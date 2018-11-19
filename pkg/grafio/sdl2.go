@@ -20,6 +20,19 @@ type Sdl2Draw struct {
 	w, h int32
 }
 
+func NewSdl2Draw(r *sdl.Renderer, font string, w, h int32) (*Sdl2Draw, error) {
+	return &Sdl2Draw{
+		mainFont: font,
+
+		fonts:    map[string]*ttf.Font{},
+		textures: map[string]*sdl.Texture{},
+
+		r: r,
+		w: w,
+		h: h,
+	}, nil
+}
+
 func (s *Sdl2Draw) SetMainFont(fontFileName string) error {
 	if _, ok := s.fonts[fontFileName]; !ok {
 		return fmt.Errorf("font %s is not loaded", fontFileName)
@@ -61,19 +74,6 @@ func (s Sdl2Draw) ScreenHeight() int32 {
 
 func (s Sdl2Draw) ScreenWidth() int32 {
 	return s.w
-}
-
-func NewSdl2Draw(r *sdl.Renderer, w, h int32) (*Sdl2Draw, error) {
-	return &Sdl2Draw{
-		mainFont: "ubuntu.ttf",
-
-		fonts:    map[string]*ttf.Font{},
-		textures: map[string]*sdl.Texture{},
-
-		r: r,
-		w: w,
-		h: h,
-	}, nil
 }
 
 func (s *Sdl2Draw) Background(r, g, b, a uint8) error {
@@ -131,7 +131,7 @@ func (s *Sdl2Draw) Present(f func() error) error {
 	}
 
 	if err := f(); err != nil {
-		return errors.Wrap(err, "could not execute f function")
+		return errors.Wrap(err, "could not execute user given function")
 	}
 
 	s.r.Present()
@@ -192,4 +192,8 @@ func (s *Sdl2Draw) destroy() error {
 		font.Close()
 	}
 	return nil
+}
+
+func sizeCal(size int32, cof float32) int32 {
+	return int32(float32(size) * (float32(cof)))
 }

@@ -51,8 +51,8 @@ func (a Apple) Paint(d grafio.Drawer) error {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
-	if err := d.TextureRect(a.x, a.y, a.size, a.size, "apple.png"); err != nil {
-		return fmt.Errorf("could not paint part of snake: %v", err)
+	if err := d.TextureRect(a.x, a.y, a.size, a.size, TextureApple); err != nil {
+		return fmt.Errorf("could not paint apple: %v", err)
 	}
 
 	return nil

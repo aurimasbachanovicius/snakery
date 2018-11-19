@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/3auris/snakery/internal/object"
 	"github.com/3auris/snakery/internal/scene"
 	"github.com/3auris/snakery/pkg/grafio"
 	"github.com/pkg/errors"
@@ -24,7 +25,7 @@ func run() error {
 	}
 	defer destroy()
 
-	drawer, err := grafio.NewSdl2Draw(r, 500, 500)
+	drawer, err := grafio.NewSdl2Draw(r, object.FontUbuntu, 500, 500)
 
 	free, err := drawer.LoadResources("res/fonts", "res/textures")
 	if err != nil {

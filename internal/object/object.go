@@ -5,6 +5,11 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+const (
+	TextureApple string = "apple.png"
+	FontUbuntu   string = "ubuntu.ttf"
+)
+
 // GameScreen have struct of width and height of screen
 type GameScreen struct {
 	W, H int32
