@@ -20,13 +20,36 @@ type Sdl2Draw struct {
 	w, h int32
 }
 
-func (s *Sdl2Draw) Rectangle(x, y, w, h int32, rgba RGBA) error {
+func (s *Sdl2Draw) SetMainFont(fontFileName string) error {
+	if _, ok := s.fonts[fontFileName]; !ok {
+		return fmt.Errorf("font %s is not loaded", fontFileName)
+	}
+
+	s.mainFont = fontFileName
+
+	return nil
+}
+
+func (s *Sdl2Draw) ColorRect(x, y, w, h int32, rgba RGBA) error {
 	if err := s.r.SetDrawColor(rgba.R, rgba.G, rgba.B, rgba.A); err != nil {
 		return errors.Wrap(err, "could not set draw color")
 	}
 
 	if err := s.r.FillRect(&sdl.Rect{X: x, Y: y, W: w, H: h}); err != nil {
 		return errors.Wrap(err, "could not fill rect")
+	}
+
+	return nil
+}
+
+func (s *Sdl2Draw) TextureRect(x, y, w, h int32, texture string) error {
+	if _, ok := s.textures[texture]; !ok {
+		return fmt.Errorf("texture %s is not found", texture)
+	}
+
+	rect := &sdl.Rect{X: x, Y: y, W: w, H: h}
+	if err := s.r.Copy(s.textures[texture], nil, rect); err != nil {
+		return errors.Wrap(err, "could not copy texture")
 	}
 
 	return nil
@@ -79,11 +102,16 @@ func (s *Sdl2Draw) Text(txt string, opts TextOpts) error {
 	}
 	defer texture.Destroy()
 
+	shift := 0
+	if opts.Align == Right && len(txt) > 1 {
+		shift = (len(txt) * int(opts.Size)) - int(opts.Size)
+	}
+
 	rect := &sdl.Rect{
-		X: sizeCal(s.w, opts.XCof),
+		X: sizeCal(s.w, opts.XCof) - int32(shift),
 		Y: sizeCal(s.h, opts.YCof),
-		W: sizeCal(s.w, .90), // todo calculate size
-		H: sizeCal(s.h, .10), // todo calculate size
+		W: opts.Size * int32(len(txt)),
+		H: opts.Size + 20,
 	}
 
 	if err := s.r.Copy(texture, nil, rect); err != nil {
@@ -99,11 +127,11 @@ func (s *Sdl2Draw) Present(f func() error) error {
 	}
 
 	if err := s.Background(255, 255, 255, 255); err != nil {
-		return errors.Wrap(err, "could not draw background")
+		return errors.Wrap(err, "could not set the background")
 	}
 
 	if err := f(); err != nil {
-		return errors.Wrap(err, "could not execute f (from parameter) function")
+		return errors.Wrap(err, "could not execute f function")
 	}
 
 	s.r.Present()

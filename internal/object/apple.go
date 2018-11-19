@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/3auris/snakery/pkg/geometrio"
 	"github.com/3auris/snakery/pkg/grafio"
-	"github.com/veandco/go-sdl2/img"
-	"github.com/veandco/go-sdl2/sdl"
 	"math/rand"
 	"sync"
 	"time"
@@ -15,30 +13,14 @@ import (
 type Apple struct {
 	mu sync.RWMutex
 
-	x, y    int32
-	size    int32
-	eaten   bool
-	texture *sdl.Texture
-}
-
-func (a *Apple) Destroy() {
-	a.texture.Destroy()
+	x, y  int32
+	size  int32
+	eaten bool
 }
 
 // NewApple creates new Apple with default values
-func NewApple(r *sdl.Renderer) (*Apple, error) {
-	image, err := img.Load("res/apple.png")
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create texture: %v\n", err)
-	}
-	defer image.Free()
-
-	t, err := r.CreateTextureFromSurface(image)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create texture: %v\n", err)
-	}
-
-	return &Apple{eaten: true, size: 16, texture: t}, nil
+func NewApple() *Apple {
+	return &Apple{eaten: true, size: 16}
 }
 
 // Update check is apple is eaten and changes the state of apple coordinates
@@ -65,12 +47,13 @@ func (a *Apple) Update() GameState {
 }
 
 // Paint paints apple to the given renderer
-func (a Apple) Paint(drawer grafio.Drawer) error {
+func (a Apple) Paint(d grafio.Drawer) error {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
-	//rect := &sdl.Rect{X: a.x, Y: a.y, W: a.size, H: a.size}
-	//r.Copy(a.texture, nil, rect)
+	if err := d.TextureRect(a.x, a.y, a.size, a.size, "apple.png"); err != nil {
+		return fmt.Errorf("could not paint part of snake: %v", err)
+	}
 
 	return nil
 }

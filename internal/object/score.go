@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-// Score the game pbject
+// Score the game object
 type Score struct {
 	mu sync.RWMutex
 
@@ -24,7 +24,7 @@ func (s Score) Paint(d grafio.Drawer) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	opts := grafio.TextOpts{Size: 2, XCof: .05, YCof: .90, Color: grafio.RGBA{R: 0, G: 0, B: 0, A: 0}}
+	opts := grafio.TextOpts{Size: 13, XCof: .94, YCof: .01, Color: grafio.RGBA{R: 0, G: 0, B: 0, A: 0}, Align: grafio.Right}
 	if err := d.Text(strconv.Itoa(s.amount), opts); err != nil {
 		return errors.Wrap(err, "failed to draw the score")
 	}

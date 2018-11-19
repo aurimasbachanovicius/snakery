@@ -22,28 +22,22 @@ type Scene struct {
 // New create new Scene with given parameters
 func New(d grafio.Drawer) (*Scene, error) {
 
-	//apple, err := object.NewApple(r)
-	//if err != nil {
-	//	return nil, fmt.Errorf("could not create apple: %v", err)
-	//}
+	scrn := object.GameScreen{W: d.ScreenWidth(), H: d.ScreenHeight()}
 
+	apple := object.NewApple()
 	score := object.NewScore()
 	snake := object.NewSnake(apple, score, scrn)
 	deadScreen := &object.DeadScreen{Score: score, Screen: scrn}
-
-	scrn := object.GameScreen{W: d.ScreenWidth(), H: d.ScreenHeight()}
-	menuScreen := &object.WelcomeText{Screen: scrn}
+	menuScreen := &object.WelcomeText{Screen: scrn, Snake: snake}
 
 	return &Scene{
-		//r:      r,
-		//w:      w,
 		drawer: d,
 
 		state: object.MenuScreen,
 		paints: map[object.GameState][]object.Paintable{
-			object.MenuScreen: {menuScreen},
-			//object.SnakeRunning: {snake, apple, score},
-			//object.DeadSnake:    {deadScreen},
+			object.MenuScreen:   {menuScreen},
+			object.SnakeRunning: {snake, apple, score},
+			object.DeadSnake:    {deadScreen},
 		},
 	}, nil
 }
@@ -129,16 +123,4 @@ func (s Scene) paint() error {
 	}
 
 	return nil
-}
-
-// Clear removes or destroys all allocated objects to free memory
-func (s Scene) Clear() {
-	for _, objects := range s.paints {
-		for _, paint := range objects {
-			switch p := paint.(type) {
-			case object.Destroyable:
-				p.Destroy()
-			}
-		}
-	}
 }

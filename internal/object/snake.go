@@ -5,7 +5,6 @@ import (
 	"github.com/3auris/snakery/pkg/geometrio"
 	"github.com/3auris/snakery/pkg/grafio"
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/veandco/go-sdl2/ttf"
 	"math"
 	"sync"
 )
@@ -38,12 +37,11 @@ type Snake struct {
 
 	apple  *Apple
 	score  *Score
-	font   *ttf.Font
 	screen GameScreen
 }
 
 // NewSnake create Snake struct with default and given values
-func NewSnake(a *Apple, s *Score, f *ttf.Font, scr GameScreen) *Snake {
+func NewSnake(a *Apple, s *Score, scr GameScreen) *Snake {
 	return &Snake{
 		parts:    []*part{{x: 50, y: 50, w: 120, h: stepSize, vector: right}},
 		size:     120,
@@ -51,7 +49,6 @@ func NewSnake(a *Apple, s *Score, f *ttf.Font, scr GameScreen) *Snake {
 
 		apple:  a,
 		score:  s,
-		font:   f,
 		screen: scr,
 	}
 }
@@ -78,7 +75,7 @@ func (s *Snake) HandleEvent(event sdl.Event) {
 }
 
 func (s *Snake) reset() {
-	n := NewSnake(s.apple, s.score, s.font, s.screen)
+	n := NewSnake(s.apple, s.score, s.screen)
 	s.score.amount = 0
 	s.score = n.score
 	s.size = n.size
@@ -102,8 +99,10 @@ func (s *Snake) Paint(d grafio.Drawer) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
+	c := grafio.RGBA{R: 34, G: 139, B: 34, A: 10}
+
 	for _, part := range s.parts {
-		if err := d.Rectangle(part.x, part.y, part.w, part.h, grafio.RGBA{34, 139, 34, 10}); err != nil {
+		if err := d.ColorRect(part.x, part.y, part.w, part.h, c); err != nil {
 			return fmt.Errorf("could not paint part of snake: %v", err)
 		}
 	}

@@ -3,21 +3,32 @@ package grafio
 type RGBA struct {
 	R, G, B, A uint8
 }
+type TextAlign int
+
+const Right TextAlign = 2
 
 type TextOpts struct {
 	Size       int32
 	XCof, YCof float32
 	Color      RGBA
+	Align      TextAlign
+}
+
+type RectOpts struct {
+	Texture string
+	Color   RGBA
 }
 
 type Drawer interface {
-	Text(txt string, opts TextOpts) error
 	Background(r, g, b, a uint8) error
-	Rectangle(x, y, w, h int32, rgba RGBA) error
+
+	Text(txt string, opts TextOpts) error
+	ColorRect(x, y, w, h int32, rgba RGBA) error
+	TextureRect(x, y, w, h int32, texture string) error
 
 	Present(f func() error) error
 	LoadResources(fontsPath, texturesPath string) (func() error, error)
-	//SetMainFont(fontFileName string) error
+	SetMainFont(fontFileName string) error
 
 	ScreenHeight() int32
 	ScreenWidth() int32
