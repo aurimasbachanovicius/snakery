@@ -24,7 +24,7 @@ func (s Score) Paint(d grafio.Drawer) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	opts := grafio.TextOpts{Size: 13, XCof: .94, YCof: .01, Color: grafio.ColorWhite, Align: grafio.Right}
+	opts := grafio.TextOpts{Size: 13, XCof: .94, YCof: .01, Color: grafio.ColorBlack, Align: grafio.Right}
 	if err := d.Text(strconv.Itoa(s.amount), opts); err != nil {
 		return errors.Wrap(err, "failed to draw the score")
 	}
