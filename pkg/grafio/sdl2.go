@@ -76,8 +76,8 @@ func (s Sdl2Draw) ScreenWidth() int32 {
 	return s.w
 }
 
-func (s *Sdl2Draw) Background(r, g, b, a uint8) error {
-	if err := s.r.SetDrawColor(r, g, b, a); err != nil {
+func (s *Sdl2Draw) Background(rgba RGBA) error {
+	if err := s.r.SetDrawColor(rgba.R, rgba.G, rgba.B, rgba.A); err != nil {
 		return errors.Wrap(err, "couldn't set color")
 	}
 
@@ -126,7 +126,7 @@ func (s *Sdl2Draw) Present(f func() error) error {
 		return errors.Wrap(err, "could not clear the renderer")
 	}
 
-	if err := s.Background(255, 255, 255, 255); err != nil {
+	if err := s.Background(ColorBlack); err != nil {
 		return errors.Wrap(err, "could not set the background")
 	}
 

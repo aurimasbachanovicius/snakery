@@ -1,5 +1,11 @@
 package grafio
 
+var (
+	ColorGreen RGBA = RGBA{R: 34, G: 139, B: 34, A: 10}
+	ColorWhite RGBA = RGBA{R: 255, G: 255, B: 255, A: 255}
+	ColorBlack RGBA = RGBA{R: 0, G: 0, B: 0, A: 0}
+)
+
 // RGBA have rgba color values
 type RGBA struct {
 	R, G, B, A uint8
@@ -28,7 +34,7 @@ type RectOpts struct {
 // Drawer an engine who can draw on window
 type Drawer interface {
 	// Background draws the whole background to the given RGBA color
-	Background(r, g, b, a uint8) error
+	Background(rgba RGBA) error
 
 	// Text writes given text with given options to the window
 	Text(txt string, opts TextOpts) error

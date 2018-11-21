@@ -42,11 +42,11 @@ func (ds *DeadScreen) Update() GameState {
 
 // Paint paints text and Score to renderer
 func (ds DeadScreen) Paint(d grafio.Drawer) error {
-	if err := d.Background(0, 0, 0, 0); err != nil {
+	if err := d.Background(grafio.ColorBlack); err != nil {
 		return errors.Wrap(err, "could not set background")
 	}
 
-	opts := grafio.TextOpts{Size: 20, XCof: .05, YCof: .15, Color: grafio.RGBA{R: 255, G: 255, B: 255, A: 255}}
+	opts := grafio.TextOpts{Size: 20, XCof: .05, YCof: .15, Color: grafio.ColorWhite}
 
 	if err := d.Text("Final score: "+strconv.Itoa(ds.Score.amount), opts); err != nil {
 		return errors.Wrap(err, "could not draw amount score text")

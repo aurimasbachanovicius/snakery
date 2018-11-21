@@ -99,10 +99,8 @@ func (s *Snake) Paint(d grafio.Drawer) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	c := grafio.RGBA{R: 34, G: 139, B: 34, A: 10}
-
 	for _, part := range s.parts {
-		if err := d.ColorRect(part.x, part.y, part.w, part.h, c); err != nil {
+		if err := d.ColorRect(part.x, part.y, part.w, part.h, grafio.ColorGreen); err != nil {
 			return fmt.Errorf("could not paint part of snake: %v", err)
 		}
 	}
