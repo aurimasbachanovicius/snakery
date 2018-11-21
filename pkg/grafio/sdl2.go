@@ -126,7 +126,7 @@ func (s *Sdl2Draw) Present(f func() error) error {
 		return errors.Wrap(err, "could not clear the renderer")
 	}
 
-	if err := s.Background(ColorBlack); err != nil {
+	if err := s.Background(ColorWhite); err != nil {
 		return errors.Wrap(err, "could not set the background")
 	}
 
