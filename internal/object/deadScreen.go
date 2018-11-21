@@ -1,11 +1,13 @@
 package object
 
 import (
-	"github.com/3auris/snakery/pkg/grafio"
+	"strconv"
+
 	"github.com/pkg/errors"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
-	"strconv"
+
+	"github.com/3auris/snakery/pkg/grafio"
 )
 
 // DeadScreen object of game which can be painted
@@ -17,6 +19,7 @@ type DeadScreen struct {
 	toMenu bool
 }
 
+// HandleEvent handle event from the input devices and manages the state
 func (ds *DeadScreen) HandleEvent(event sdl.Event) {
 	switch ev := event.(type) {
 	case *sdl.KeyboardEvent:
@@ -31,6 +34,7 @@ func (ds *DeadScreen) HandleEvent(event sdl.Event) {
 	}
 }
 
+// Update update dead screen and gives game state
 func (ds *DeadScreen) Update() GameState {
 	if ds.toMenu {
 		ds.toMenu = false

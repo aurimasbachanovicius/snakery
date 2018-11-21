@@ -1,9 +1,14 @@
 package grafio
 
 var (
-	ColorGreen RGBA = RGBA{R: 34, G: 139, B: 34, A: 10}
-	ColorWhite RGBA = RGBA{R: 255, G: 255, B: 255, A: 255}
-	ColorBlack RGBA = RGBA{R: 0, G: 0, B: 0, A: 0}
+	// ColorGreen rgba green color
+	ColorGreen = RGBA{R: 34, G: 139, B: 34, A: 10}
+
+	// ColorWhite rgba white color
+	ColorWhite = RGBA{R: 255, G: 255, B: 255, A: 255}
+
+	// ColorBlack rgba black color
+	ColorBlack = RGBA{R: 0, G: 0, B: 0, A: 0}
 )
 
 // RGBA have rgba color values

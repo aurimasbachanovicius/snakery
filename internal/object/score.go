@@ -1,22 +1,24 @@
 package object
 
 import (
-	"github.com/3auris/snakery/pkg/grafio"
-	"github.com/pkg/errors"
 	"strconv"
 	"sync"
+
+	"github.com/pkg/errors"
+
+	"github.com/3auris/snakery/pkg/grafio"
 )
 
 // Score the game object
 type Score struct {
-	mu sync.RWMutex
+	mu *sync.RWMutex
 
 	amount int
 }
 
 // NewScore creates Score with default and given values
 func NewScore() *Score {
-	return &Score{amount: 0}
+	return &Score{mu: &sync.RWMutex{}, amount: 0}
 }
 
 // Paint the score number to renderer to the corner

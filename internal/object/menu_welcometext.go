@@ -1,11 +1,13 @@
 package object
 
 import (
-	"github.com/3auris/snakery/pkg/grafio"
 	"github.com/pkg/errors"
 	"github.com/veandco/go-sdl2/sdl"
+
+	"github.com/3auris/snakery/pkg/grafio"
 )
 
+// WelcomeText object of showing welcome text
 type WelcomeText struct {
 	Screen GameScreen
 	Snake  *Snake
@@ -13,6 +15,7 @@ type WelcomeText struct {
 	changeState bool
 }
 
+// HandleEvent handles events from input devices
 func (wt *WelcomeText) HandleEvent(event sdl.Event) {
 	switch ev := event.(type) {
 	case *sdl.KeyboardEvent:
@@ -27,6 +30,7 @@ func (wt *WelcomeText) HandleEvent(event sdl.Event) {
 	}
 }
 
+// Update updates snake and chooses game state to return
 func (wt *WelcomeText) Update() GameState {
 	if wt.changeState {
 		wt.Snake.reset()

@@ -1,13 +1,16 @@
 package object
 
 import (
-	"github.com/3auris/snakery/pkg/grafio"
 	"github.com/veandco/go-sdl2/sdl"
+
+	"github.com/3auris/snakery/pkg/grafio"
 )
 
 const (
-	TextureApple string = "apple.png"
-	FontUbuntu   string = "ubuntu.ttf"
+	textureApple string = "apple.png"
+
+	// FontUbuntu filename of ubuntu font in the resources
+	FontUbuntu string = "ubuntu.ttf"
 )
 
 // GameScreen have struct of width and height of screen

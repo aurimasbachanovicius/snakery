@@ -2,11 +2,13 @@ package object
 
 import (
 	"fmt"
-	"github.com/3auris/snakery/pkg/geometrio"
-	"github.com/3auris/snakery/pkg/grafio"
-	"github.com/veandco/go-sdl2/sdl"
 	"math"
 	"sync"
+
+	"github.com/veandco/go-sdl2/sdl"
+
+	"github.com/3auris/snakery/pkg/geometrio"
+	"github.com/3auris/snakery/pkg/grafio"
 )
 
 type snakeVector int
@@ -28,7 +30,7 @@ type part struct {
 
 // Snake game object
 type Snake struct {
-	mu sync.RWMutex
+	mu *sync.RWMutex
 
 	parts []*part
 	size  int
@@ -43,6 +45,7 @@ type Snake struct {
 // NewSnake create Snake struct with default and given values
 func NewSnake(a *Apple, s *Score, scr GameScreen) *Snake {
 	return &Snake{
+		mu:       &sync.RWMutex{},
 		parts:    []*part{{x: 50, y: 50, w: 120, h: stepSize, vector: right}},
 		size:     120,
 		lockMove: false,
@@ -99,8 +102,8 @@ func (s *Snake) Paint(d grafio.Drawer) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	for _, part := range s.parts {
-		if err := d.ColorRect(part.x, part.y, part.w, part.h, grafio.ColorGreen); err != nil {
+	for _, p := range s.parts {
+		if err := d.ColorRect(p.x, p.y, p.w, p.h, grafio.ColorGreen); err != nil {
 			return fmt.Errorf("could not paint part of snake: %v", err)
 		}
 	}
@@ -111,12 +114,12 @@ func (s *Snake) Paint(d grafio.Drawer) error {
 func (s *Snake) getWholeSize() int {
 	sum := 0
 
-	for _, part := range s.parts {
-		switch part.vector {
+	for _, p := range s.parts {
+		switch p.vector {
 		case up, down:
-			sum += int(math.Abs(float64(part.h)))
+			sum += int(math.Abs(float64(p.h)))
 		case left, right:
-			sum += int(math.Abs(float64(part.w)))
+			sum += int(math.Abs(float64(p.w)))
 		}
 	}
 
@@ -124,24 +127,18 @@ func (s *Snake) getWholeSize() int {
 }
 
 func (s *Snake) eat() {
-	s.mu.RLock()
 	latest := s.latestPart()
-	exists := s.apple.ExistsIn(latest.getCords())
-	s.mu.RUnlock()
+	exists := s.apple.existsIn(latest.getCords())
 
 	if exists {
-		s.apple.EatApple()
+		s.apple.eatApple()
 		s.score.Increase()
 
-		s.mu.Lock()
 		s.size += 50
-		s.mu.Unlock()
 	}
 }
 
-func (s *Snake) move() {
-	s.lockMove = false
-
+func (s *Snake) firstPartMovement() {
 	first := s.parts[0]
 	if s.getWholeSize() > s.size && len(s.parts) > 1 {
 		if first.h == 0 || first.w == 0 {
@@ -165,6 +162,12 @@ func (s *Snake) move() {
 			first.w -= stepSize
 		}
 	}
+}
+
+func (s *Snake) move() {
+	s.lockMove = false
+
+	s.firstPartMovement()
 
 	latest := s.latestPart()
 	switch latest.vector {
@@ -195,10 +198,7 @@ func (s *Snake) move() {
 	}
 }
 
-func (s *Snake) touchDeadZone() bool {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
+func (s *Snake) outOfTheScreen() bool {
 	head := s.latestPart()
 	sl, sr := head.getCords()
 
@@ -213,14 +213,27 @@ func (s *Snake) touchDeadZone() bool {
 		return true
 	}
 
+	return false
+}
+
+func (s *Snake) touchDeadZone() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.outOfTheScreen() {
+		return true
+	}
+
 	if len(s.parts) <= 3 {
 		return false
 	}
 
-	parts := s.parts[:len(s.parts)-3]
+	head := s.latestPart()
+	sl, sr := head.getCords()
 
-	for _, part := range parts {
-		pl, pr := part.getCords()
+	parts := s.parts[:len(s.parts)-3]
+	for _, p := range parts {
+		pl, pr := p.getCords()
 
 		if geometrio.IsOverlapping(pl, pr, sl, sr) {
 			return true
@@ -235,13 +248,17 @@ func (s *Snake) latestPart() *part {
 }
 
 func (p part) getCords() (geometrio.Cord, geometrio.Cord) {
-	return geometrio.Cord{
+	lt := geometrio.Cord{
 		X: p.x,
 		Y: p.y,
-	}, geometrio.Cord{
+	}
+
+	rb := geometrio.Cord{
 		X: p.x + p.w,
 		Y: p.y + p.h,
 	}
+
+	return lt, rb
 }
 
 func (s Snake) canGo(v snakeVector) bool {

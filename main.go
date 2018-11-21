@@ -2,23 +2,25 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"runtime"
+
+	"github.com/pkg/errors"
+	"github.com/veandco/go-sdl2/sdl"
+
 	"github.com/3auris/snakery/internal/object"
 	"github.com/3auris/snakery/internal/scene"
 	"github.com/3auris/snakery/pkg/grafio"
-	"github.com/pkg/errors"
-	"github.com/veandco/go-sdl2/sdl"
-	"os"
-	"runtime"
 )
 
 func main() {
 	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "%v", err)
+		_, _ = fmt.Fprintf(os.Stderr, "%v", err)
 		os.Exit(2)
 	}
 }
 
-func run() error {
+func run() (erro error) {
 	r, destroy, err := scene.PrepareSdl2(500, 500)
 	if err != nil {
 		return errors.Wrap(err, "could not prepare sdl2 engine")
@@ -31,7 +33,11 @@ func run() error {
 	if err != nil {
 		return errors.Wrap(err, "could not load resources")
 	}
-	defer free()
+	defer func() {
+		if err := free(); err != nil {
+			erro = errors.Wrap(err, "could not free resources")
+		}
+	}()
 
 	s, err := scene.New(drawer)
 	if err != nil {
@@ -48,8 +54,5 @@ func run() error {
 		case err := <-errc:
 			return err
 		}
-
 	}
-
-	return nil
 }

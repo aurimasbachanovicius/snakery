@@ -2,16 +2,17 @@ package object
 
 import (
 	"fmt"
-	"github.com/3auris/snakery/pkg/geometrio"
-	"github.com/3auris/snakery/pkg/grafio"
 	"math/rand"
 	"sync"
 	"time"
+
+	"github.com/3auris/snakery/pkg/geometrio"
+	"github.com/3auris/snakery/pkg/grafio"
 )
 
 // Apple is the game object
 type Apple struct {
-	mu sync.RWMutex
+	mu *sync.RWMutex
 
 	x, y  int32
 	size  int32
@@ -20,15 +21,15 @@ type Apple struct {
 
 // NewApple creates new Apple with default values
 func NewApple() *Apple {
-	return &Apple{eaten: true, size: 16}
+	return &Apple{mu: &sync.RWMutex{}, eaten: true, size: 16}
 }
 
-// Update check is apple is eaten and changes the state of apple coordinates
+// Update check is Apple is eaten and changes the state of Apple coordinates
 func (a *Apple) Update() GameState {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
-	if ! a.eaten {
+	if !a.eaten {
 		return SnakeRunning
 	}
 
@@ -46,20 +47,19 @@ func (a *Apple) Update() GameState {
 	return SnakeRunning
 }
 
-// Paint paints apple to the given renderer
+// Paint paints Apple to the given renderer
 func (a Apple) Paint(d grafio.Drawer) error {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
-	if err := d.TextureRect(a.x, a.y, a.size, a.size, TextureApple); err != nil {
-		return fmt.Errorf("could not paint apple: %v", err)
+	if err := d.TextureRect(a.x, a.y, a.size, a.size, textureApple); err != nil {
+		return fmt.Errorf("could not paint Apple: %v", err)
 	}
 
 	return nil
 }
 
-// ExistsIn check is the Apple exists in rectangle between pl and pr coordinates
-func (a Apple) ExistsIn(pl, pr geometrio.Cord) bool {
+func (a Apple) existsIn(pl, pr geometrio.Cord) bool {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
@@ -76,8 +76,7 @@ func (a Apple) ExistsIn(pl, pr geometrio.Cord) bool {
 	return geometrio.IsOverlapping(l, r, pl, pr)
 }
 
-// EatApple set state of eaten to true
-func (a *Apple) EatApple() {
+func (a *Apple) eatApple() {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 

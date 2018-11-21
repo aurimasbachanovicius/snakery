@@ -2,13 +2,15 @@ package grafio
 
 import (
 	"fmt"
+	"io/ioutil"
+
 	"github.com/pkg/errors"
 	"github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
-	"io/ioutil"
 )
 
+// Sdl2Draw adapter for sdl2 go bindings
 type Sdl2Draw struct {
 	r *sdl.Renderer
 
@@ -20,6 +22,7 @@ type Sdl2Draw struct {
 	w, h int32
 }
 
+// NewSdl2Draw creates new sdl2draw drawer
 func NewSdl2Draw(r *sdl.Renderer, font string, w, h int32) (*Sdl2Draw, error) {
 	return &Sdl2Draw{
 		mainFont: font,
@@ -33,6 +36,7 @@ func NewSdl2Draw(r *sdl.Renderer, font string, w, h int32) (*Sdl2Draw, error) {
 	}, nil
 }
 
+// SetMainFont sets the default font for all text
 func (s *Sdl2Draw) SetMainFont(fontFileName string) error {
 	if _, ok := s.fonts[fontFileName]; !ok {
 		return fmt.Errorf("font %s is not loaded", fontFileName)
@@ -43,6 +47,7 @@ func (s *Sdl2Draw) SetMainFont(fontFileName string) error {
 	return nil
 }
 
+// ColorRect draws into sdl2 window given color rectangle in the given coordinates
 func (s *Sdl2Draw) ColorRect(x, y, w, h int32, rgba RGBA) error {
 	if err := s.r.SetDrawColor(rgba.R, rgba.G, rgba.B, rgba.A); err != nil {
 		return errors.Wrap(err, "could not set draw color")
@@ -55,6 +60,7 @@ func (s *Sdl2Draw) ColorRect(x, y, w, h int32, rgba RGBA) error {
 	return nil
 }
 
+// TextureRect draws into sdl2 window with given texture rectangle in the given coordinates
 func (s *Sdl2Draw) TextureRect(x, y, w, h int32, texture string) error {
 	if _, ok := s.textures[texture]; !ok {
 		return fmt.Errorf("texture %s is not found", texture)
@@ -68,14 +74,17 @@ func (s *Sdl2Draw) TextureRect(x, y, w, h int32, texture string) error {
 	return nil
 }
 
+// ScreenHeight returns the height in pixels of the sdl2 created screen
 func (s Sdl2Draw) ScreenHeight() int32 {
 	return s.h
 }
 
+// ScreenWidth returns the width in pixels of the sdl2 created screen
 func (s Sdl2Draw) ScreenWidth() int32 {
 	return s.w
 }
 
+// Background draws whole background of sdl2 window to the given rgba color
 func (s *Sdl2Draw) Background(rgba RGBA) error {
 	if err := s.r.SetDrawColor(rgba.R, rgba.G, rgba.B, rgba.A); err != nil {
 		return errors.Wrap(err, "couldn't set color")
@@ -88,7 +97,8 @@ func (s *Sdl2Draw) Background(rgba RGBA) error {
 	return nil
 }
 
-func (s *Sdl2Draw) Text(txt string, opts TextOpts) error {
+// Text draws given text with options to the sdl2 window
+func (s *Sdl2Draw) Text(txt string, opts TextOpts) (erro error) {
 	c := sdl.Color{R: opts.Color.R, G: opts.Color.G, B: opts.Color.B, A: opts.Color.A}
 	surface, err := s.fonts[s.mainFont].RenderUTF8Solid(txt, c)
 	if err != nil {
@@ -100,7 +110,12 @@ func (s *Sdl2Draw) Text(txt string, opts TextOpts) error {
 	if err != nil {
 		return errors.Wrap(err, "could not create texture")
 	}
-	defer texture.Destroy()
+
+	defer func() {
+		if err = texture.Destroy(); err != nil {
+			erro = errors.Wrap(err, "could not destroy texture")
+		}
+	}()
 
 	shift := 0
 	if opts.Align == Right && len(txt) > 1 {
@@ -121,6 +136,7 @@ func (s *Sdl2Draw) Text(txt string, opts TextOpts) error {
 	return nil
 }
 
+// Present makes white background of the window calls user's function
 func (s *Sdl2Draw) Present(f func() error) error {
 	if err := s.r.Clear(); err != nil {
 		return errors.Wrap(err, "could not clear the renderer")
@@ -139,6 +155,7 @@ func (s *Sdl2Draw) Present(f func() error) error {
 	return nil
 }
 
+// LoadResources load resources of fonts and textures given path
 func (s *Sdl2Draw) LoadResources(fontsPath, texturesPath string) (func() error, error) {
 	textures, err := ioutil.ReadDir(texturesPath)
 	if err != nil {
@@ -152,12 +169,12 @@ func (s *Sdl2Draw) LoadResources(fontsPath, texturesPath string) (func() error, 
 
 		image, err := img.Load(texturesPath + "/" + f.Name())
 		if err != nil {
-			return nil, fmt.Errorf("Failed to create texture: %v\n", err)
+			return nil, fmt.Errorf("failed to create texture: %v\n", err)
 		}
 
 		texture, err := s.r.CreateTextureFromSurface(image)
 		if err != nil {
-			return nil, fmt.Errorf("Failed to create texture: %v\n", err)
+			return nil, fmt.Errorf("failed to create texture: %v\n", err)
 		}
 		image.Free()
 
