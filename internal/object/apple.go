@@ -21,7 +21,18 @@ type Apple struct {
 
 // NewApple creates new Apple with default values
 func NewApple() *Apple {
-	return &Apple{mu: &sync.RWMutex{}, eaten: true, size: 16}
+	x, y := getAppleRandXY()
+
+	return &Apple{mu: &sync.RWMutex{}, eaten: false, size: 16, x: int32(x), y: int32(y)}
+}
+
+func getAppleRandXY() (x, y int) {
+	rand.Seed(time.Now().UnixNano())
+
+	x = rand.Intn(460-1) + 1
+	y = rand.Intn(460-1) + 1
+
+	return x, y
 }
 
 // Update check is Apple is eaten and changes the state of Apple coordinates
@@ -35,14 +46,10 @@ func (a *Apple) Update() GameState {
 
 	a.eaten = false
 
-	rand.Seed(time.Now().UnixNano())
-	rX := rand.Intn(460-1) + 1
+	x, y := getAppleRandXY()
 
-	rand.Seed(time.Now().UnixNano())
-	rY := rand.Intn(460-1) + 1
-
-	a.x = int32(rX)
-	a.y = int32(rY)
+	a.x = int32(x)
+	a.y = int32(y)
 
 	return SnakeRunning
 }
