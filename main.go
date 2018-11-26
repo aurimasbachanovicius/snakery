@@ -25,7 +25,12 @@ func run() (erro error) {
 	if err != nil {
 		return errors.Wrap(err, "could not prepare sdl2 engine")
 	}
-	defer destroy()
+
+	defer func() {
+		if err := destroy(); err != nil {
+			erro = errors.Wrap(err, "could not destroy sdl2")
+		}
+	}()
 
 	drawer, err := grafio.NewSdl2Draw(r, object.FontUbuntu, 500, 500)
 
