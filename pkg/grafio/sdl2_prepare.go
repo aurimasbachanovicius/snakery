@@ -1,4 +1,4 @@
-package scene
+package grafio
 
 import (
 	"fmt"
@@ -8,8 +8,7 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-// PrepareSdl2 prepares the sdl2 window.
-func PrepareSdl2(width, height int32) (r *sdl.Renderer, destroy func() error, err error) {
+func prepareSdl2(width, height int32) (r *sdl.Renderer, destroy func() error, err error) {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		return nil, nil, fmt.Errorf("could not init sdl: %v", err)
 	}

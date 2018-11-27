@@ -1,12 +1,14 @@
 package scene
 
 import (
-	"github.com/3auris/snakery/internal/object"
-	"github.com/3auris/snakery/pkg/grafio"
-	"github.com/pkg/errors"
-	"github.com/veandco/go-sdl2/sdl"
 	"os"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/veandco/go-sdl2/sdl"
+
+	"github.com/3auris/snakery/internal/object"
+	"github.com/3auris/snakery/pkg/grafio"
 )
 
 // Scene holds paints and state of the current game
@@ -69,8 +71,6 @@ func (s *Scene) Run(events <-chan sdl.Event) <-chan error {
 				}
 			}
 		}
-
-		os.Exit(0)
 	}()
 
 	return errc

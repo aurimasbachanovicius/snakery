@@ -21,18 +21,12 @@ func main() {
 }
 
 func run() (erro error) {
-	r, destroy, err := scene.PrepareSdl2(500, 500)
-	if err != nil {
-		return errors.Wrap(err, "could not prepare sdl2 engine")
-	}
-
+	drawer, destroy, err := grafio.NewSdl2Draw(object.FontUbuntu, 500, 500)
 	defer func() {
 		if err := destroy(); err != nil {
 			erro = errors.Wrap(err, "could not destroy sdl2")
 		}
 	}()
-
-	drawer, err := grafio.NewSdl2Draw(r, object.FontUbuntu, 500, 500)
 
 	free, err := drawer.LoadResources("res/fonts", "res/textures")
 	if err != nil {

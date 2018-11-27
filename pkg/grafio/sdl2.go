@@ -23,7 +23,12 @@ type Sdl2Draw struct {
 }
 
 // NewSdl2Draw creates new sdl2draw drawer
-func NewSdl2Draw(r *sdl.Renderer, font string, w, h int32) (*Sdl2Draw, error) {
+func NewSdl2Draw(font string, w, h int32) (sdl2draw *Sdl2Draw, destroy func() error, erro error) {
+	r, destroy, err := prepareSdl2(w, h)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "could not prepare sdl2 engine")
+	}
+
 	return &Sdl2Draw{
 		mainFont: font,
 
@@ -33,7 +38,7 @@ func NewSdl2Draw(r *sdl.Renderer, font string, w, h int32) (*Sdl2Draw, error) {
 		r: r,
 		w: w,
 		h: h,
-	}, nil
+	}, destroy, nil
 }
 
 // SetMainFont sets the default font for all text
@@ -187,7 +192,7 @@ func (s *Sdl2Draw) LoadResources(fontsPath, texturesPath string) (func() error, 
 	}
 
 	for _, f := range fonts {
-		font, err := ttf.OpenFont(fontsPath+"/"+f.Name(), 100)
+		font, err := ttf.OpenFont(fontsPath+"/"+f.Name(), 300)
 		if err != nil {
 			return nil, fmt.Errorf("could not load font: %v", err)
 		}
