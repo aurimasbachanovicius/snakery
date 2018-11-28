@@ -192,7 +192,7 @@ func (s *Sdl2Draw) LoadResources(fontsPath, texturesPath string) (func() error, 
 	}
 
 	for _, f := range fonts {
-		font, err := ttf.OpenFont(fontsPath+"/"+f.Name(), 300)
+		font, err := ttf.OpenFont(fontsPath+"/"+f.Name(), 124)
 		if err != nil {
 			return nil, fmt.Errorf("could not load font: %v", err)
 		}
