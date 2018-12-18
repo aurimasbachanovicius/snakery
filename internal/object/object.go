@@ -23,13 +23,13 @@ type GameState int
 
 const (
 	// SnakeRunning state when the Snake is running/moving and it's not the end yet
-	SnakeRunning GameState = 1
+	SnakeRunning GameState = iota
 
 	// DeadSnake state when Snake touches something and dies and need to show dead screen
-	DeadSnake GameState = 2
+	DeadSnake
 
 	// MenuScreen state when There's menu shown for setting and entering into game
-	MenuScreen GameState = 3
+	MenuScreen
 )
 
 // Paintable paints something to sdl renderer

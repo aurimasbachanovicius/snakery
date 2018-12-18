@@ -14,10 +14,10 @@ import (
 type snakeVector int
 
 const (
-	up    snakeVector = 1
-	down  snakeVector = 2
-	left  snakeVector = 3
-	right snakeVector = 4
+	up snakeVector = iota
+	down
+	left
+	right
 
 	stepSize int32 = 10
 )
